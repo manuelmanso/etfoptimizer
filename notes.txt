@@ -1,0 +1,40 @@
+Questions:
+Covariance - why don't ETFs have covariance of 1 with themselves?  (Maybe because covariance with itself is just the variance)
+Is it possible to use variable risk-free rate? (Don't think so, and probably not important) Risk-free rate: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html Fama/French 3 Factors (normal, weekly and daily)
+Why are the sharpe ratios so high? Could some calculations be wrong?
+How to deal with recent ETFs that have really high expected returns?
+Return does not include dividend reinvestment. How can we consider dividends?
+Fix and understand "covariance matrix is non positive semidefinite" warning (Example: IE00B99FL386 and LU2090062865)
+
+TO DO:
+Why don't weights add up to 1?
+Include management fees in expected returns (can it simply be subtracted?)
+Add current optimizer as REST endpoint that returns portfolio and performance
+Add some filters (cutoff, rounding, shorting, domicile country, distribution policy)
+Dockerize optimizer
+Fix non-complete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days have data normally)
+
+Calculations:
+Remove etfs that aren't traded anymore (maybe also remove ETFs that have less than a year(?) of returns)
+
+Portfolio filter:
+Add maximum weight for a single asset
+Add maximum number of assets
+Allow shorting (gives weird results)
+Filter by: region, country, sector, domicile country, specific exchange, currency, replication, distribution policy
+
+Display results:
+Show ETFs by name and ISIN
+Select initial value and display how many shares to buy of each
+Create plot
+
+What to do with results?
+Perform back-testing
+Add another optimizer (maximum volatility, regime switching or other) and compare
+Choose maximum risk or expected return (other optimizer)
+
+Future:
+Add logic to get updated daily data
+Use etfDB in the future (or get the full list of ETFs from justETF)
+Create UI/backend to allow users to interact with the optimizer
+Create docker for backend

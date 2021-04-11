@@ -1,0 +1,74 @@
+Weekly:
+{'IE00B579F325': 0.04, 'IE00B60SX170': 0.04, 'IE0032077012': 0.17, 'LU2197908721': 0.19,
+'LU0292105359': 0.02, 'LU0290357507': 0.2, 'LU0290357259': 0.12, 'LU0444607005': 0.19, 'LU0429459356': 0.01, 'LU0290359032': 0.02}
+Expected annual return: 11.8%
+Annual volatility: 7.3%
+Sharpe Ratio: 1.34
+
+Daily:
+(Only etfs with 3000 data points)
+Expected annual return: 8.4%
+Annual volatility: 3.8%
+Sharpe Ratio: 1.69
+{'JBEMLU1481202692': 0.08, '-IE00B1FZS913': 0.01, 'MTELU1650489385': 0.01, 'MTFLU1287023268': 0.1, 'MTDLU1287023185': 0.15, 'MTXLU1650490474': 0.05, 'ITPSIE00B1FZSC47': 0.04, 'SGILIE00B3B8PX14': 0.03, 'DBXHLU0290357929': 0.06, 'C010LU0378437502': 0.07, 'DJEFR0007056841': 0.05, 'XMCXLU0292097317': 0.02, 'PSRWIE00B23LNQ02': 0.02, 'PSRFIE00B23D8S39': 0.07, '-DE000A0S9GB0': 0.03, 'EXS3DE0005933923': 0.01, 'STSIE00BKWQ0D84': 0.03, 'CH5FR0010688192': 0.03, 'STWIE00BKWQ0H23': 0.04, 'STQIE00BKWQ0J47': 0.02, 'STKIE00BKWQ0K51': 0.01, 'DX2JLU0322253906': 0.02}
+(0.0843732134029381, 0.03816495942101354, 1.6867098610746682)
+
+(Only etfs with 3000 data points)
+Expected annual return: 10.7%
+Annual volatility: 3.8%
+Sharpe Ratio: 2.28
+{'BNP Paribas Easy Bloomberg Barclays Euro Aggregate Treasury UCITS ETF - LU1481202692': 0.05, 'Lyxor Euro Government Bond 10-15Y (DR) UCITS ETF - Acc - LU1650489385': 0.03, 'Lyxor Euro Government Bond 15+Y (DR) UCITS ETF - Acc - LU1287023268': 0.06, 'Lyxor Euro Government Bond 7-10Y (DR) UCITS ETF - Acc - LU1287023185': 0.1, 'Lyxor Euro Government Bond (DR) UCITS ETF - Acc - LU1650490474': 0.02, 'iShares Global Inflation Linked Government Bond UCITS ETF USD (Acc) - IE00B3B8PX14': 0.02, 'Invesco FTSE RAFI US 1000 UCITS ETF - IE00B23D8S39': 0.05, 'Xetra-Gold - DE000A0S9GB0': 0.01, 'SPDR MSCI Europe Consumer Staples UCITS ETF - IE00BKWQ0D84': 0.01, 'SPDR MSCI Europe Health Care UCITS ETF - IE00BKWQ0H23': 0.02, 'Lyxor MSCI Taiwan UCITS ETF - Acc - LU1900066033': 0.02, 'Amundi MSCI USA UCITS ETF EUR (C) - LU1681042864': 0.05, 'Lyxor MSCI USA UCITS ETF - Dist - FR0010296061': 0.01, 'UBS ETF (LU) MSCI USA UCITS ETF (USD) A-dis - LU0136234654': 0.02, 'UBS ETF (LU) MSCI World UCITS ETF (USD) A-dis - LU0340285161': 0.03, 'Invesco EQQQ Nasdaq-100 UCITS ETF - IE0032077012': 0.09, 'iShares Nasdaq 100 UCITS ETF (DE) - DE000A0F5UF5': 0.02, 'Lyxor Nasdaq-100 UCITS ETF - Acc - LU1829221024': 0.06, 'Lyxor Nasdaq-100 UCITS ETF - Dist - LU2197908721': 0.06, 'Lyxor STOXX Europe 600 Chemicals UCITS ETF - Acc - LU1834983634': 0.01, 'Lyxor STOXX Europe 600 Personal & Household Goods UCITS ETF - Acc - LU1834988351': 0.01, 'iShares eb.rexx Government Germany 10.5+yr UCITS ETF (DE) - DE000A0D8Q31': 0.01, 'Xtrackers Eurozone Government Bond 5-7 UCITS ETF 1C - LU0290357176': 0.04, 'Xtrackers Eurozone Government Bond 7-10 UCITS ETF 1C - LU0290357259': 0.1, 'Xtrackers Eurozone Government Bond UCITS ETF 1C - LU0290355717': 0.08}
+(0.10740844009671094, 0.03828094311470866, 2.283340821431488)
+
+
+(Only etfs with >500 data points)
+Expected annual return: 15.9%
+Annual volatility: 3.2%
+Sharpe Ratio: 4.38
+{'iShares Spain Government Bond UCITS ETF (Dist) - IE00B428Z604': 0.03, 'iShares Euro Government Bond 3-7yr UCITS ETF (Acc) - IE00B3VTML14': 0.04, 'Lyxor Euro Government Bond 25+Y (DR) UCITS ETF - Dist - LU1686832277': 0.01, 'SPDR Barclays 10+ Year Government Bond UCITS ETF - IE00BYSZ6062': 0.02, 'Lyxor Euro Government Bond 15+Y (DR) UCITS ETF - Acc - LU1287023268': 0.01, 'Xtrackers EUR Liquid Corporate 12.5 Swap UCITS ETF 1C - IE00B3Z66S39': 0.03, 'iShares Dow Jones Industrial Average UCITS ETF (Acc) - IE00B53L4350': 0.02, 'Invesco Elwood Global Blockchain UCITS ETF A - IE00BGBN6P67': 0.05, 'Amundi ETF Government Bond EuroMTS Broad Investment Grade 7-10 UCITS ETF EUR (C) - FR0010754184': 0.01, 'iShares USD Treasury Bond 3-7yr UCITS ETF (Acc) - IE00B3VWN393': 0.02, 'iShares USD Treasury Bond 7-10yr UCITS ETF (Acc) - IE00B3VWN518': 0.04, 'iShares MSCI Canada UCITS ETF (Acc) - IE00B52SF786': 0.01, 'iShares USD Treasury Bond 7-10yr UCITS ETF EUR (Dist) - IE00BGPP6697': 0.03, 'iShares MSCI Japan UCITS ETF USD (Acc) - IE00B53QDK08': 0.01, 'UBS ETF (LU) MSCI USA Socially Responsible UCITS ETF (hedged to EUR) A-dis - LU1280303014': 0.03, 'iShares MSCI USA Small Cap UCITS ETF (Acc) - IE00B3VWM098': 0.02, 'iShares MSCI USA UCITS ETF (Acc) - IE00B52SFT06': 0.04, 'iShares MSCI UK UCITS ETF (Acc) - IE00B539F030': 0.01, 'iShares MSCI UK Small Cap UCITS ETF (Acc) - IE00B3VWLG82': 0.03, 'Invesco EQQQ Nasdaq-100 UCITS ETF - IE0032077012': 0.01, 'iShares Core S&P 500 UCITS ETF (Acc) - IE00B5BMR087': 0.02, 'BNP Paribas Easy S&P 500 UCITS ETF EUR - FR0011550185': 0.01, 'Lyxor Nasdaq-100 UCITS ETF - Acc - LU1829221024': 0.01, 'iShares Nikkei 225 UCITS ETF (Acc) - IE00B52MJD48': 0.01, 'Invesco S&P 500 UCITS ETF Dist - IE00BYML9W36': 0.05, 'WisdomTree Artificial Intelligence UCITS ETF USD Acc - IE00BDVPNG13': 0.01, 'iShares S&P 500 Information Technology Sector UCITS ETF USD (Acc) - IE00B3WJKG14': 0.03, 'Lyxor Nasdaq-100 UCITS ETF - Dist - LU2197908721': 0.01, 'UBS ETF (LU) Sustainable Development Bank Bonds UCITS ETF (USD) A-acc - LU1852211215': 0.04, 'Xtrackers iBoxx USD Treasuries UCITS ETF 1D - LU0429459356': 0.03, 'Ossiam US Minimum Variance ESG UCITS ETF 1A (EUR) - IE00BHNGHX58': 0.03, 'Lyxor iBoxx EUR Sovereigns Germany Capped 5-10 UCITS ETF - LU0444606965': 0.02, 'Xtrackers Eurozone Government Bond 15+ UCITS ETF 1C - LU0290357507': 0.02}
+(0.15923025277945907, 0.03176322401775384, 4.383379114841657)
+
+
+Expected annual return: 15.3%
+Annual volatility: 3.4%
+Sharpe Ratio: 3.96
+{'SPDR Barclays 10+ Year Government Bond UCITS ETF - IE00BYSZ6062': 0.01, 'iShares Euro Government Bond 3-7yr UCITS ETF (Acc) - IE00B3VTML14': 0.04, 'Lyxor Euro Government Bond 15+Y (DR) UCITS ETF - Acc - LU1287023268': 0.02, 'Lyxor Euro Government Bond 25+Y (DR) UCITS ETF - Dist - LU1686832277': 0.02, 'Lyxor Euro Government Bond 7-10Y (DR) UCITS ETF - Dist - LU2090062949': 0.02, 'iShares Spain Government Bond UCITS ETF (Dist) - IE00B428Z604': 0.01, 'UBS ETF (LU) Barclays MSCI US Liquid Corporates Sustainable UCITS ETF (hedged to EUR) A-acc - LU1215461325': 0.01, 'Invesco US Treasury Bond 3-7 Year UCITS ETF A - IE00BF2FNQ44': 0.02, 'Lyxor Bund-Future UCITS ETF - LU0508799334': 0.02, 'Xtrackers EUR Liquid Corporate 12.5 Swap UCITS ETF 1C - IE00B3Z66S39': 0.03, 'iShares Dow Jones Industrial Average UCITS ETF (Acc) - IE00B53L4350': 0.02, 'Invesco Elwood Global Blockchain UCITS ETF A - IE00BGBN6P67': 0.05, 'Amundi ETF Government Bond EuroMTS Broad Investment Grade 10-15 UCITS ETF EUR (C) - FR0010754143': 0.02, 'Amundi ETF Government Bond EuroMTS Broad Investment Grade 5-7 UCITS ETF EUR (C) - FR0010754176': 0.03, 'Amundi ETF Government Bond EuroMTS Broad Investment Grade 7-10 UCITS ETF EUR (C) - FR0010754184': 0.03, 'iShares USD Treasury Bond 7-10yr UCITS ETF (Acc) - IE00B3VWN518': 0.05, 'JPMorgan BetaBuilders US Treasury Bond 1-3 yr UCITS ETF - USD (Acc) - IE00BD9MMD49': 0.04, 'Ossiam Japan Minimum Variance NR UCITS ETF 1C (EUR) - LU1254453738': 0.01, 'iShares MSCI Canada UCITS ETF (Acc) - IE00B52SF786': 0.02, 'iShares MSCI Japan UCITS ETF USD (Acc) - IE00B53QDK08': 0.01, 'iShares MSCI UK UCITS ETF (Acc) - IE00B539F030': 0.02, 'iShares MSCI UK Small Cap UCITS ETF (Acc) - IE00B3VWLG82': 0.03, 'iShares MSCI USA UCITS ETF (Acc) - IE00B52SFT06': 0.04, 'UBS ETF (IE) MSCI USA hedged EUR UCITS ETF (EUR) A-acc - IE00BD4TYG73': 0.03, 'UBS ETF (LU) MSCI USA Socially Responsible UCITS ETF (hedged to EUR) A-dis - LU1280303014': 0.04, 'iShares MSCI USA Small Cap UCITS ETF (Acc) - IE00B3VWM098': 0.01, 'iShares Edge MSCI World Minimum Volatility UCITS ETF USD (Acc) - IE00B8FHGS14': 0.02, 'Amundi Nasdaq 100 UCITS ETF EUR (C) - LU1681038243': 0.01, 'iShares Nasdaq 100 UCITS ETF (Acc) - IE00B53SZB19': 0.03, 'Lyxor Nasdaq-100 UCITS ETF - Acc - LU1829221024': 0.02, 'iShares S&P 500 Information Technology Sector UCITS ETF USD (Acc) - IE00B3WJKG14': 0.03, 'Invesco S&P 500 UCITS ETF Dist - IE00BYML9W36': 0.06, 'iShares Core S&P 500 UCITS ETF (Acc) - IE00B5BMR087': 0.02, 'Ossiam US Minimum Variance ESG UCITS ETF 1A (EUR) - IE00BHNGHX58': 0.03, 'Xtrackers Eurozone Government Bond 15+ UCITS ETF 1C - LU0290357507': 0.01, 'Lyxor iBoxx EUR Sovereigns Germany Capped 5-10 UCITS ETF - LU0444606965': 0.01}
+(0.153032085542098, 0.03363565415472915, 3.955091372093734)
+
+
+(Only etfs with >252 data points)
+Expected annual return: 27.0%
+Annual volatility: 3.9%
+Sharpe Ratio: 6.39
+{'21Shares Bitcoin ETP - CH0454664001': 0.02, 'iShares Euro Government Bond 3-7yr UCITS ETF (Acc) - IE00B3VTML14': 0.05, 'Lyxor Euro Government Bond 7-10Y (DR) UCITS ETF - Dist - LU2090062949': 0.03, 'Lyxor Euro Government Bond (DR) UCITS ETF - Acc - LU1650490474': 0.01, 'SPDR Barclays 1-3 Year US Treasury Bond UCITS ETF - IE00BC7GZJ81': 0.02, 'Invesco US Treasury Bond 0-1 Year UCITS ETF Dist - IE00BKWD3C98': 0.03, 'Lyxor CAC 40 (DR) UCITS ETF - J-EUR - FR0011122233': 0.01, 'Xtrackers EUR Liquid Corporate 12.5 Swap UCITS ETF 1C - IE00B3Z66S39': 0.02, 'iShares Dow Jones Industrial Average UCITS ETF (Acc) - IE00B53L4350': 0.03, '21Shares Ethereum ETP - CH0454664027': 0.02, 'Xtrackers II USD Emerging Markets Bond UCITS ETF 2C - LU1920015440': 0.05, 'Amundi Government Bond EuroMTS Broad Investment Grade UCITS ETF EUR (C) - LU1681046261': 0.01, 'Amundi ETF Government Bond EuroMTS Broad Investment Grade 5-7 UCITS ETF EUR (C) - FR0010754176': 0.04, 'iShares USD Treasury Bond 7-10yr UCITS ETF (Acc) - IE00B3VWN518': 0.04, 'iShares USD Treasury Bond 7-10yr UCITS ETF (Dist) - IE00B1FZS798': 0.01, 'JPMorgan BetaBuilders US Treasury Bond 1-3 yr UCITS ETF - USD (Acc) - IE00BD9MMD49': 0.04, 'iShares MSCI Canada UCITS ETF (Acc) - IE00B52SF786': 0.02, 'iShares MSCI Japan UCITS ETF USD (Acc) - IE00B53QDK08': 0.02, 'iShares MSCI UK Small Cap UCITS ETF (Acc) - IE00B3VWLG82': 0.01, 'iShares MSCI USA UCITS ETF (Acc) - IE00B52SFT06': 0.01, 'UBS ETF (LU) MSCI USA Socially Responsible UCITS ETF (hedged to EUR) A-dis - LU1280303014': 0.02, 'UBS ETF (IE) MSCI USA Select Factor Mix UCITS ETF (USD) A-acc - IE00BDGV0415': 0.02, 'CSIF (IE) MSCI World ESG Leaders Blue UCITS ETF BH EUR - IE00BKKFT300': 0.05, 'VanEck Vectors Video Gaming and eSports UCITS ETF - IE00BYWQWR46': 0.02, 'iShares S&P 500 Information Technology Sector UCITS ETF USD (Acc) - IE00B3WJKG14': 0.01, 'Invesco S&P 500 UCITS ETF Dist - IE00BYML9W36': 0.05, 'UBS ETF (LU) Sustainable Development Bank Bonds UCITS ETF (USD) A-acc - LU1852211215': 0.06, 'Ossiam US Minimum Variance ESG UCITS ETF 1A (EUR) - IE00BHNGHX58': 0.03, 'Amundi ETF Euro Inflation UCITS ETF EUR (C) - FR0010754127': 0.02, 'Xtrackers II Eurozone Government Bond UCITS ETF 2C - USD Hedged - LU2009147591': 0.03, 'Lyxor iBoxx EUR Sovereigns Germany Capped 5-10 UCITS ETF - LU0444606965': 0.08}
+(0.27033412207415825, 0.03915578717248897, 6.393285390263948)
+
+
+Expected annual return: 14.1%
+Annual volatility: 3.0%
+Sharpe Ratio: 3.97
+16 assets: {'iShares Euro Government Bond 3-7yr UCITS ETF (Acc)': 0.03, 'Lyxor Euro Government Bond 7-10Y (DR) UCITS ETF - Dist': 0.03, 'Xtrackers EUR Liquid Corporate 12.5 Swap UCITS ETF 1C': 0.02, 'Invesco Elwood Global Blockchain UCITS ETF A': 0.04, 'Amundi ETF Government Bond EuroMTS Broad Investment Grade 5-7 UCITS ETF EUR (C)': 0.03, 'iShares USD Treasury Bond 7-10yr UCITS ETF (Acc)': 0.04, 'JPMorgan BetaBuilders US Treasury Bond 1-3 yr UCITS ETF - USD (Acc)': 0.05, 'iShares MSCI UK Small Cap UCITS ETF (Acc)': 0.03, 'iShares MSCI USA UCITS ETF (Acc)': 0.03, 'UBS ETF (IE) MSCI USA hedged EUR UCITS ETF (EUR) A-acc': 0.03, 'UBS ETF (LU) MSCI USA Socially Responsible UCITS ETF (hedged to EUR) A-dis': 0.03, 'iShares Nasdaq 100 UCITS ETF (Acc)': 0.02, 'iShares S&P 500 Information Technology Sector UCITS ETF USD (Acc)': 0.03, 'Invesco S&P 500 UCITS ETF Dist': 0.05, 'Ossiam US Minimum Variance ESG UCITS ETF 1A (EUR)': 0.03, 'Xtrackers Eurozone Government Bond 5-7 UCITS ETF 1C': 0.03}
+
+
+Expected annual return: 11.7%
+Annual volatility: 3.4%
+Sharpe Ratio: 2.83
+20 assets: {'BNP Paribas Easy Bloomberg Barclays Euro Aggregate Treasury UCITS ETF - LU1481202692': 0.03,
+'iShares Core Euro Corporate Bond UCITS ETF (Dist) - IE00B3F81R35': 0.03,
+ 'SPDR Barclays 10+ Year Government Bond UCITS ETF - IE00BYSZ6062': 0.02,
+ 'iShares Euro Government Bond 3-7yr UCITS ETF (Acc) - IE00B3VTML14': 0.05,
+  'Lyxor Euro Government Bond 15+Y (DR) UCITS ETF - Acc - LU1287023268': 0.03,
+   'Lyxor Euro Government Bond 25+Y (DR) UCITS ETF - Dist - LU1686832277': 0.02,
+    'Lyxor Euro Government Bond 7-10Y (DR) UCITS ETF - Acc - LU1287023185': 0.05,
+     'Lyxor Euro Government Bond 7-10Y (DR) UCITS ETF - Dist - LU2090062949': 0.08,
+      'iShares Spain Government Bond UCITS ETF (Dist) - IE00B428Z604': 0.02,
+       'Lyxor Core US TIPS (DR) UCITS ETF - Dist - LU1452600270': 0.02,
+        'Lyxor Bund-Future UCITS ETF - LU0508799334': 0.02,
+         'Xtrackers EUR Liquid Corporate 12.5 Swap UCITS ETF 1C - IE00B3Z66S39': 0.06,
+         'iShares Dow Jones Industrial Average UCITS ETF (Acc) - IE00B53L4350': 0.03,
+          'Invesco Elwood Global Blockchain UCITS ETF A - IE00BGBN6P67': 0.1,
+          'Amundi ETF Government Bond EuroMTS Broad Investment Grade 10-15 UCITS ETF EUR (C) - FR0010754143': 0.05,
+          'Amundi ETF Government Bond EuroMTS Broad Investment Grade 5-7 UCITS ETF EUR (C) - FR0010754176': 0.05,
+           'Xtrackers Global Sovereign UCITS ETF 1C EUR hedged - LU0378818131': 0.03, 'iShares USD Treasury Bond 3-7 UCITS ETF USD (Dist) - IE00BFXYHY63': 0.08,
+           'iShares USD Treasury Bond 7-10yr UCITS ETF (Acc) - IE00B3VWN518': 0.06,
+            'iShares USD Treasury Bond 7-10yr UCITS ETF (Dist) - IE00B1FZS798': 0.03}

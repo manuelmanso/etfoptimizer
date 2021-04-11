@@ -1,12 +1,16 @@
 class ETF:
 
+    _id = ""
     data = {}
-
     historicalData = []
 
-    def __init__(self, data, historicalData): 
+    def __init__(self, _id, data, historicalData):
+        self._id = _id
         self.data = data
         self.historicalData = historicalData
+
+    def getId(self):
+        return self._id
 
     def getData(self):
         return self.data
@@ -46,10 +50,10 @@ def getETFListFromJson(jsonData):
     etfList = []
 
     for d in jsonData:
-        if "data" in d and "historicalData" in d:
-            etfList.append(ETF(d["data"], d["historicalData"]))
+        if "_id" in d and "data" in d and "historicalData" in d:
+            etfList.append(ETF(d["_id"], d["data"], d["historicalData"]))
         else:
-            etfList.append(ETF(d, {}))
+            etfList.append(ETF("", d, {}))
 
     return etfList
 

@@ -2,17 +2,23 @@ import requests
 import eikon
 import pandas
 from ETF import *
-import json
+import datetime
+from pymongo import MongoClient
+from timeit import default_timer
+from config import EIKON_APP_KEY, JUSTETF_URL, MONGODB_URL
 
-EIKON_APP_KEY = '10d6c70fb1ab4eeab8211ea6793548258f8f6e09'
-ETF_DATA_FILENAME = 'etfData.json'
+START_DATE = "2000-01-01"
+
 
 def main():
-    etfData = loadDataFromFile()
+    etfList = getEtfListFromMongoDB()
 
     if len(etfData) == 0:
         etfData = getETFData()
-        saveDataToFile(etfData)
+        etfList = getETFListFromJson(etfData)
+        getRICCodes(etfList)
+        saveETFListToMongoDB(etfList)
+        etfList = getEtfListFromMongoDB()
 
     print("Found " + str(len(etfData)) + " ETFs")
 
@@ -25,27 +31,36 @@ def main():
     checkMissingHistoricalData(etfList)
 
 
-def loadDataFromFile():
-    print()
-    try:
-        with open(ETF_DATA_FILENAME) as json_file:
-            print("Load ETF data from file")
-            return json.load(json_file)
-    except:
-        print("Could not load data from file")
-        return []
+def getMongoDB():
+    client = MongoClient(host="localhost", port=2717)
+    # client = MongoClient(MONGODB_URL)
+    return client.etfOptimizer
 
 
-def saveDataToFile(etfData):
-    print("Saving etf data to file")
-    with open(ETF_DATA_FILENAME, 'w') as json_file:
-        json.dump(etfData, json_file, indent=4)
+def getEtfListFromMongoDB():
+    print("Getting ETFs from MongoDB")
+    start = default_timer()
+    db = getMongoDB()
+    etfs = db.etfs.find()
+    etfList = getETFListFromJson(etfs)
+    end = default_timer()
+    print("Time to get etfList from mongoDB " + str(end - start))
+    return etfList
 
-def saveETFListToFile(etfList):
-    etfData = []
+
+def saveETFListToMongoDB(etfList):
+    jsonData = []
+
     for etf in etfList:
-        etfData.append(etf.toJSON())
-    saveDataToFile(etfData)
+        jsonData.append(etf.toJSON())
+
+    db = getMongoDB()
+    db.etfs.insert_many(jsonData)
+
+
+def updateEtfHistoricalData(etf):
+    db = getMongoDB()
+    db.etfs.update_one({'_id': etf.getId()}, {'$set': {'historicalData': etf.getHistoricalData()}})
 
 
 def getETFData():
@@ -55,16 +70,16 @@ def getETFData():
     justEftUrl = "https://www.justetf.com/servlet/etfs-table"
     
     try:
-        headers={
-            "content-type":"application/x-www-form-urlencoded"
+        headers = {
+            "content-type": "application/x-www-form-urlencoded"
         }
         
         body = {
             "country": "DE",
-            "draw":"1",
-            "start":"0",
-            "length":"2000",
-            "universeType":"private"
+            "draw": "1",
+            "start": "0",
+            "length": "2000",
+            "universeType": "private"
         }
 
         response = requests.post(justEftUrl, headers=headers, data=body)
@@ -93,9 +108,9 @@ def getRICCodes(etfList):
 
     i = 0
     for index, row in RIC_codes.iterrows():
-        rics = row["RICs"]
-        etfList[i].setRICs(rics)
-        i+=1
+        RICs = row["RICs"]
+        etfList[i].setRICs(RICs)
+        i += 1
 
     saveETFListToFile(etfList)
 
@@ -106,52 +121,76 @@ def getHistoricalData(etfList):
 
     eikon.set_app_key(EIKON_APP_KEY)
 
-    updatedCounter = 0
     for i in range(len(etfList)):
         etf = etfList[i]
-        print(str(i) + ": " + etf.getName())
-
         if len(etf.getHistoricalData()) > 0:
-            print("Skipping ETF " + etf.getName() + " since it already has historical data")
             continue
+
+        print(str(i) + ": " + etf.getName())
 
         historicalData = getHistoricalDataForETF(etf)
         if historicalData is None:
             print("Could not get any results for this ETF")
             continue
 
-        print("Found " + str(len(historicalData)) + " weeks of data")
-        etf.setHistoricalData(historicalData)
-
-        if updatedCounter % 25 == 0 and updatedCounter != 0:
-            saveETFListToFile(etfList)
-
-        updatedCounter+=1
-
-    saveETFListToFile(etfList)
+        updateEtfHistoricalData(etf)
 
 
 def getHistoricalDataForETF(etf):
-    rics = etf.getRICs()
-    if len(rics) == 0:
+    RICs = etf.getRICs()
+    if len(RICs) == 0:
         print("Skipping ETF because it has no RICs")
 
-    for ric in rics:
+    for ric in RICs:
         try:
             result = eikon.get_timeseries(ric, start_date="2000-01-01", fields="CLOSE", interval='weekly')
 
             historicalData = []
-            for index, row in result.iterrows():
-                if not pandas.isna(row["CLOSE"]):
-                    historicalData.append({"date": str(index.date()), "close": row["CLOSE"]})
 
-            if len(historicalData) > 0:
-                return historicalData
-        except:
+            startDate = START_DATE
+            endDate = datetime.datetime.now()
+            while len(historicalData) % 3000 == 0 and isDateInThePast(startDate):
+                data = getDataByRicFromStartDate(ric, startDate, endDate)
+
+                if len(data) == 0:
+                    continue
+
+                historicalData = data + historicalData
+                endDate = getPreviousDay(data[0]["date"])
+
+            return historicalData
+
+        except Exception as e:
+            print(e)
             print("Could not get results for RIC " + ric)
 
 
+
+def getPreviousDay(dateString):
+    date = datetime.datetime.strptime(dateString, "%Y-%m-%d") - datetime.timedelta(days=1)
+    return date.strftime('%Y-%m-%d')
+
+
+def isDateInThePast(dateString):
+    return datetime.datetime.strptime(dateString, "%Y-%m-%d").date() < datetime.datetime.now().date()
+
+
+def getDataByRicFromStartDate(ric, startDate, endDate):
+    result = eikon.get_timeseries(ric, start_date=startDate, end_date=endDate, fields="CLOSE")
+
+    data = []
+    for index, row in result.iterrows():
+        close = row["CLOSE"]
+        if pandas.isna(close):
+            close = float("nan")
+        data.append({"date": str(index.date()), "close": close})
+
+    return data
+
+
 def checkMissingHistoricalData(etfList):
+    print()
+    print("Check missing historical data")
 
     missingCounter = 0
     lessThan50Counter = 0
