@@ -13,22 +13,16 @@ START_DATE = "2000-01-01"
 def main():
     etfList = getEtfListFromMongoDB()
 
-    if len(etfData) == 0:
+    if len(etfList) == 0:
         etfData = getETFData()
         etfList = getETFListFromJson(etfData)
         getRICCodes(etfList)
         saveETFListToMongoDB(etfList)
         etfList = getEtfListFromMongoDB()
 
-    print("Found " + str(len(etfData)) + " ETFs")
-
-    etfList = getETFListFromJson(etfData)
-
-    getRICCodes(etfList)
+    print("Found " + str(len(etfList)) + " ETFs")
 
     getHistoricalData(etfList)
-
-    checkMissingHistoricalData(etfList)
 
 
 def getMongoDB():
@@ -66,8 +60,6 @@ def updateEtfHistoricalData(etf):
 def getETFData():
     print()
     print("Getting all ETFs from justETF")
-
-    justEftUrl = "https://www.justetf.com/servlet/etfs-table"
     
     try:
         headers = {
@@ -82,7 +74,7 @@ def getETFData():
             "universeType": "private"
         }
 
-        response = requests.post(justEftUrl, headers=headers, data=body)
+        response = requests.post(JUSTETF_URL, headers=headers, data=body)
 
         
     except requests.exceptions.RequestException as e:
@@ -112,8 +104,6 @@ def getRICCodes(etfList):
         etfList[i].setRICs(RICs)
         i += 1
 
-    saveETFListToFile(etfList)
-
 
 def getHistoricalData(etfList):
     print()
@@ -132,6 +122,9 @@ def getHistoricalData(etfList):
         if historicalData is None:
             print("Could not get any results for this ETF")
             continue
+        else:
+            etf.setHistoricalData(historicalData)
+            print("Got " + str(len(historicalData)) + " days of data")
 
         updateEtfHistoricalData(etf)
 
@@ -143,8 +136,6 @@ def getHistoricalDataForETF(etf):
 
     for ric in RICs:
         try:
-            result = eikon.get_timeseries(ric, start_date="2000-01-01", fields="CLOSE", interval='weekly')
-
             historicalData = []
 
             startDate = START_DATE
@@ -163,7 +154,6 @@ def getHistoricalDataForETF(etf):
         except Exception as e:
             print(e)
             print("Could not get results for RIC " + ric)
-
 
 
 def getPreviousDay(dateString):
@@ -186,30 +176,6 @@ def getDataByRicFromStartDate(ric, startDate, endDate):
         data.append({"date": str(index.date()), "close": close})
 
     return data
-
-
-def checkMissingHistoricalData(etfList):
-    print()
-    print("Check missing historical data")
-
-    missingCounter = 0
-    lessThan50Counter = 0
-    lessThan100Counter = 0
-
-    for i in range(len(etfList)):
-        etf=etfList[i]
-        if len(etf.getHistoricalData()) == 0:
-            print(i, etf.getName())
-            missingCounter+=1
-        if len(etf.getHistoricalData()) < 50:
-            lessThan50Counter+=1
-        if len(etf.getHistoricalData()) < 100:
-            lessThan100Counter+=1
-
-
-    print(str(missingCounter) + " ETFs are missing historicalData")
-    print(str(lessThan50Counter) + " ETFs have less than 50 weeks of historical data")
-    print(str(lessThan100Counter) + " ETFs have less than 100 weeks of historical data")
 
 
 if __name__ == "__main__":

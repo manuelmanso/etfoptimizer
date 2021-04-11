@@ -7,8 +7,8 @@ Return does not include dividend reinvestment. How can we consider dividends?
 Fix and understand "covariance matrix is non positive semidefinite" warning (Example: IE00B99FL386 and LU2090062865)
 
 TO DO:
-Why don't weights add up to 1?
 Include management fees in expected returns (can it simply be subtracted?)
+Why don't weights add up to 1?
 Add current optimizer as REST endpoint that returns portfolio and performance
 Add some filters (cutoff, rounding, shorting, domicile country, distribution policy)
 Dockerize optimizer
@@ -21,7 +21,8 @@ Portfolio filter:
 Add maximum weight for a single asset
 Add maximum number of assets
 Allow shorting (gives weird results)
-Filter by: region, country, sector, domicile country, specific exchange, currency, replication, distribution policy
+Filter by: listings, region, country, sector, domicile country, currency, replication, distribution policy
+Maybe need to scrape justETF to get more information(listings)
 
 Display results:
 Show ETFs by name and ISIN
