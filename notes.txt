@@ -6,7 +6,7 @@ How to deal with recent ETFs that have really high expected returns?
 Return does not include dividend reinvestment. How can we consider dividends?
 Include management fees in expected returns (can it simply be subtracted? expected_return - TER)
 How to deal with cutoff and rounding? (Too high and you get weird results, too low and you get too many assets)
-Fix and understand "covariance matrix is non positive semidefinite" warning (Example: IE00B99FL386 and LU2090062865)
+Fix and understand "covariance matrix is non positive semidefinite" warning (Example: "IE00B99FL386", "LU2090062865", "IE00BFWFPY67", "IE00B7MXFZ59", "LU1291109616", "LU0659579063", "DE000A0D8Q23")
 
 TO DO:
 Add current optimizer as REST endpoint that returns portfolio and performance

@@ -7,9 +7,9 @@ from timeit import default_timer
 
 RISK_FREE_RATE = 0.02
 
-REMOVE_TER = False
+REMOVE_TER = True
 
-MINIMUM_DAYS_WITH_DATA = 250  # around 2 years
+MINIMUM_DAYS_WITH_DATA = 500  # around 2 years
 
 ASSET_WEIGHT_CUTOFF = 0.01
 ASSET_WEIGHT_ROUNDING = 4

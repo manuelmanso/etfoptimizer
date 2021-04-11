@@ -25,7 +25,7 @@ class ETF:
         return self.data["ticker"]
 
     def getTER(self):
-        return float(self.data["ter"][:-1])
+        return float(self.data["ter"][:-1]) * 0.01
 
     def getRICs(self):
         if "RICs" in self.data:
