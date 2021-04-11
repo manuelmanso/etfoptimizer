@@ -5,11 +5,14 @@ from pypfopt import risk_models
 from pypfopt.efficient_frontier import EfficientFrontier
 from timeit import default_timer
 
-MINIMUM_DAYS_WITH_DATA = 500  # around 2 years
-
 RISK_FREE_RATE = 0.02
-ASSET_WEIGHT_CUTOFF = 0.02
-ASSET_WEIGHT_ROUNDING = 2
+
+REMOVE_TER = False
+
+MINIMUM_DAYS_WITH_DATA = 250  # around 2 years
+
+ASSET_WEIGHT_CUTOFF = 0.01
+ASSET_WEIGHT_ROUNDING = 4
 
 
 def main():
@@ -50,6 +53,9 @@ def findMaxSharpePortfolio(etfList):
 
     returns = expected_returns.mean_historical_return(prices)
 
+    if REMOVE_TER:
+        removeTERFromReturns(etfList, returns)
+
     start = default_timer()
     cov = risk_models.sample_cov(prices)
     end = default_timer()
@@ -62,15 +68,30 @@ def findMaxSharpePortfolio(etfList):
     end = default_timer()
     print("Time to find max sharpe " + str(end - start))
 
+    displayResults(ef)
+
+
+def displayResults(ef):
     sharpe_pwt = ef.clean_weights(cutoff=ASSET_WEIGHT_CUTOFF, rounding=ASSET_WEIGHT_ROUNDING)
     performance = ef.portfolio_performance(verbose=True, risk_free_rate=RISK_FREE_RATE)
 
     portfolio = {}
+    total = 0
     for key, value in sharpe_pwt.items():
         if value > 0:
             portfolio[key] = value
+            total += value
 
     print(str(len(portfolio.keys())) + " assets:", portfolio)
+    print("Total:", total)
+
+
+def removeTERFromReturns(etfList, returns):
+
+    for index, row in returns.items():
+        for etf in etfList:
+            if etf.getName() == index:
+                returns.loc[index] = row - etf.getTER()
 
 
 def getPricesDataFrame(etfList):
