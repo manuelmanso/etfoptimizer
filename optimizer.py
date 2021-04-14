@@ -15,15 +15,20 @@ ASSET_WEIGHT_CUTOFF = 0.01
 ASSET_WEIGHT_ROUNDING = 4
 
 
-def main():
+fullETFList = getEtfListFromMongoDB()
 
-    etfList = getEtfListFromMongoDB()
+
+def optimize():
+
+    global fullETFList
+
+    etfList = fullETFList[0:100]
 
     etfList = filterDatalessETFs(etfList)
 
     etfList = filterETFsByParameters(etfList)
 
-    findMaxSharpePortfolio(etfList)
+    return findMaxSharpePortfolio(etfList)
 
 
 def filterDatalessETFs(etfList):
@@ -68,10 +73,6 @@ def findMaxSharpePortfolio(etfList):
     end = default_timer()
     print("Time to find max sharpe " + str(end - start))
 
-    displayResults(ef)
-
-
-def displayResults(ef):
     sharpe_pwt = ef.clean_weights(cutoff=ASSET_WEIGHT_CUTOFF, rounding=ASSET_WEIGHT_ROUNDING)
     performance = ef.portfolio_performance(verbose=True, risk_free_rate=RISK_FREE_RATE)
 
@@ -84,6 +85,15 @@ def displayResults(ef):
 
     print(str(len(portfolio.keys())) + " assets:", portfolio)
     print("Total:", total)
+
+    result = {
+        "expected return": performance[0],
+        "annual volatility": performance[1],
+        "sharpe ratio": performance[2],
+        "portfolio": portfolio
+    }
+
+    return result
 
 
 def removeTERFromReturns(etfList, returns):
@@ -120,37 +130,3 @@ def getPricesDataFrame(etfList):
         pricesByDate[identifier] = prices
 
     return pandas.DataFrame(pricesByDate)
-
-
-def test():
-    etfList = getEtfListFromMongoDB()
-
-    etfList = filterDatalessETFs(etfList)
-
-    prices = getPricesDataFrame(etfList)
-
-    returns = expected_returns.mean_historical_return(prices)
-
-    sortedReturns = returns.sort_values()
-
-    for index, row in sortedReturns.items():
-        inceptionDate = 0
-        for etf in etfList:
-            if etf.getName() == index:
-                inceptionDate = etf.getData()["inceptionDate"]
-        print(index, row, inceptionDate)
-
-
-def testdate():
-    etfList = getEtfListFromMongoDB()
-    for i in range(len(etfList)):
-        etf= etfList[i]
-        date = etf.getHistoricalData()[-1]["date"]
-        if date[0:7] != "2021-04":
-            print(i, etf.getName())
-
-
-if __name__ == "__main__":
-    main()
-    #test()
-    #testdate()

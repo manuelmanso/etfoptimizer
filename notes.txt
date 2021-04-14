@@ -1,28 +1,18 @@
 Questions:
-Covariance - why don't ETFs have covariance of 1 with themselves?  (Maybe because covariance with itself is just the variance)
-Is it possible to use variable risk-free rate? (Don't think so, and probably not important) Risk-free rate: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html Fama/French 3 Factors (normal, weekly and daily)
-Why are the sharpe ratios so high? Could some calculations be wrong?
-How to deal with recent ETFs that have really high expected returns?
-Return does not include dividend reinvestment. How can we consider dividends?
-Include management fees in expected returns (can it simply be subtracted? expected_return - TER)
-How to deal with cutoff and rounding? (Too high and you get weird results, too low and you get too many assets)
 Fix and understand "covariance matrix is non positive semidefinite" warning (Example: "IE00B99FL386", "LU2090062865", "IE00BFWFPY67", "IE00B7MXFZ59", "LU1291109616", "LU0659579063", "DE000A0D8Q23")
+Remove etfs that aren't traded anymore (maybe also remove ETFs that have less than a year(?) of returns)
 
 TO DO:
-Add current optimizer as REST endpoint that returns portfolio and performance
 Add some filters (cutoff, rounding, shorting, domicile country, distribution policy)
-Have static ETFList so you don't have to load it for every optimization
 Dockerize optimizer
 Fix non-complete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days have data normally)
-
-Calculations:
-Remove etfs that aren't traded anymore (maybe also remove ETFs that have less than a year(?) of returns)
+Add option to calculate returns/covariance based on last 3 years (make it generic)
 
 Portfolio filter:
 Add maximum weight for a single asset
 Add maximum number of assets
 Allow shorting (gives weird results)
-Filter by: listings, region, country, sector, domicile country, currency, replication, distribution policy
+Filter by: listings, region, country, sector, domicile country, currency, replication, distribution policy, equity class
 Maybe need to scrape justETF to get more information(listings)
 
 Display results:
@@ -36,7 +26,6 @@ Add another optimizer (maximum volatility, regime switching or other) and compar
 Choose maximum risk or expected return (other optimizer)
 
 Future:
-Add logic to get updated daily data
 Use etfDB in the future (or get the full list of ETFs from justETF)
 Create UI/backend to allow users to interact with the optimizer
 Create docker for backend
