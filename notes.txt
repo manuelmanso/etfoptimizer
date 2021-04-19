@@ -10,10 +10,10 @@ Use docker to set environment variables for EIKON api key, justETFURL
 Create simple README
 Understand how docker volumes work for mongoDB, remove hardcoded local URL
 Find out how to remote debug inside container
-Improve exception handling for server
 Add way to retrieve data on docker-compose up if there isn't data
-Fix non-complete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days have data normally)
+Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
 Add option to calculate returns/covariance based on last 3 years (make it generic, based on the last x days of data)
+Improve exception handling for server
 
 Portfolio filter:
 Add maximum weight for a single asset
@@ -28,10 +28,8 @@ Create plot
 
 What to do with results?
 Perform back-testing
-Add another optimizer (maximum volatility, regime switching or other) and compare
-Choose maximum risk or expected return (other optimizer)
+Add another optimizer (maximum volatility, expected return, regime switching or other) and compare
 
 Future:
 Use etfDB in the future (or get the full list of ETFs from justETF)
-Create UI/backend to allow users to interact with the optimizer
-Create docker for backend
+Create UI to allow users to interact with the optimizer
