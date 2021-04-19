@@ -41,8 +41,8 @@ def filter_etfs_without_data(etf_list, optimizer_parameters):
     minimum_days_with_data = optimizer_parameters.get("minimumDaysWithData")
 
     for etf in etf_list:
-            if len(etf.getHistoricalData()) >= minimum_days_with_data:
-                etfs_with_data.append(etf)
+        if len(etf.getHistoricalData()) >= minimum_days_with_data:
+            etfs_with_data.append(etf)
 
     print("Filtered ETFs that don't have enough data: {} ETFs left".format(len(etfs_with_data)))
     return etfs_with_data

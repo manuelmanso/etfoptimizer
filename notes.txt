@@ -4,9 +4,14 @@ Filter by currency? Some ETFs use a different currency in different exchanges
 Shorting leads to near zero volatility and near infinite sharpe ratio
 
 TO DO:
+Find out why prints don't show up in logs
+Move code to src/ directory
 Use docker to set environment variables for EIKON api key, justETFURL
 Create simple README
-Understand how docker volumes work for mongoDB
+Understand how docker volumes work for mongoDB, remove hardcoded local URL
+Find out how to remote debug inside container
+Improve exception handling for server
+Add way to retrieve data on docker-compose up if there isn't data
 Fix non-complete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days have data normally)
 Add option to calculate returns/covariance based on last 3 years (make it generic, based on the last x days of data)
 
