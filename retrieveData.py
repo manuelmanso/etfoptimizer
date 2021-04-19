@@ -5,7 +5,7 @@ from ETF import *
 import datetime
 from pymongo import MongoClient
 from timeit import default_timer
-from config import EIKON_APP_KEY, JUSTETF_URL, MONGODB_URL
+from config import EIKON_APP_KEY, JUSTETF_URL
 
 START_DATE = "2000-01-01"
 
@@ -26,8 +26,7 @@ def main():
 
 
 def getMongoDB():
-    client = MongoClient(host="localhost", port=2717)
-    # client = MongoClient(MONGODB_URL)
+    client = MongoClient(host="mongo", port=27017)
     return client.etfOptimizer
 
 

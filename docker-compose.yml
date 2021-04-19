@@ -1,0 +1,16 @@
+services:
+  optimizer:
+    image: optimizer
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    ports:
+      - "2717:27017"
+    volumes:
+    - C:\Users\manel\Desktop\TUM\SS 2021\IDP ETF\mongo:/data/db
+
+#volumes:
+#  logvolume01: {}

@@ -1,0 +1,6 @@
+flask
+pandas
+pymongo
+eikon
+requests
+PyPortfolioOpt
