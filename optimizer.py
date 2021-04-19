@@ -6,113 +6,132 @@ from pypfopt.efficient_frontier import EfficientFrontier
 from timeit import default_timer
 
 RISK_FREE_RATE = 0.02
-
 REMOVE_TER = True
-
 MINIMUM_DAYS_WITH_DATA = 500  # around 2 years
-
 ASSET_WEIGHT_CUTOFF = 0.01
 ASSET_WEIGHT_ROUNDING = 4
+SHORTING = False
 
 
-fullETFList = getEtfListFromMongoDB()
+full_etf_list = getEtfListFromMongoDB()
 
 
-def optimize():
+def optimize(optimizer_parameters, etf_filters):
 
-    global fullETFList
+    global full_etf_list
 
-    etfList = fullETFList[0:100]
+    etf_list = filter_etfs_without_data(full_etf_list, optimizer_parameters)
 
-    etfList = filterDatalessETFs(etfList)
+    etf_list = filter_etfs(etf_list, etf_filters)
 
-    etfList = filterETFsByParameters(etfList)
+    if len(etf_list) == 0:
+        raise Exception("No ETFs are left after filtering. Can't perform portfolio optimization.")
 
-    return findMaxSharpePortfolio(etfList)
+    start = default_timer()
+    portfolio = find_max_sharpe_portfolio(etf_list, optimizer_parameters)
+    end = default_timer()
+    print("Time to find max sharpe {}".format(end - start))
 
-
-def filterDatalessETFs(etfList):
-    etfsWithData = []
-
-    for etf in etfList:
-        if len(etf.getHistoricalData()) >= MINIMUM_DAYS_WITH_DATA:
-            etfsWithData.append(etf)
-
-    print("Filtered ETFs that don't have enough data or aren't traded anymore: " + str(len(etfsWithData)) + " ETFs left")
-    return etfsWithData
+    return portfolio
 
 
-def filterETFsByParameters(etfList):
-    etfsByParams = []
+def filter_etfs_without_data(etf_list, optimizer_parameters):
+    etfs_with_data = []
 
-    for etf in etfList:
-        etfsByParams.append(etf)
+    minimum_days_with_data = optimizer_parameters.get("minimumDaysWithData")
 
-    print("Filtered ETFs by the parameters provided: " + str(len(etfsByParams)) + " ETFs left")
-    return etfsByParams
+    for etf in etf_list:
+            if len(etf.getHistoricalData()) >= minimum_days_with_data:
+                etfs_with_data.append(etf)
+
+    print("Filtered ETFs that don't have enough data: {} ETFs left".format(len(etfs_with_data)))
+    return etfs_with_data
 
 
-def findMaxSharpePortfolio(etfList):
+def filter_etfs(etf_list, etf_filters):
+    etfs = []
 
-    prices = getPricesDataFrame(etfList)
+    domicile_country = etf_filters.get("domicileCountry")
+    replication_method = etf_filters.get("replicationMethod")
+    distribution_policy = etf_filters.get("distributionPolicy")
+
+    for etf in etf_list:
+
+        if domicile_country and domicile_country != etf.getDomicileCountry():
+            continue
+
+        if replication_method and replication_method != etf.getReplicationMethod():
+            continue
+
+        if distribution_policy and distribution_policy != etf.getDistributionPolicy():
+            continue
+
+        etfs.append(etf)
+
+    print("Filtered ETFs by the parameters provided: {} ETFs left".format(len(etfs)))
+    return etfs
+
+
+def find_max_sharpe_portfolio(etf_list, optimize_parameters):
+
+    asset_cutoff = optimize_parameters.get("assetCutoff", ASSET_WEIGHT_CUTOFF)
+    asset_rounding = optimize_parameters.get("assetRounding", ASSET_WEIGHT_ROUNDING)
+    remove_ter = optimize_parameters.get("removeTER", REMOVE_TER)
+    risk_free_rate = optimize_parameters.get("riskFreeRate", RISK_FREE_RATE)
+    shorting = optimize_parameters.get("shorting", SHORTING)
+
+    prices = get_prices_data_frame(etf_list)
 
     returns = expected_returns.mean_historical_return(prices)
 
-    if REMOVE_TER:
-        removeTERFromReturns(etfList, returns)
+    if remove_ter:
+        remove_ter_from_returns(etf_list, returns)
 
-    start = default_timer()
     cov = risk_models.sample_cov(prices)
-    end = default_timer()
-    print("Time to get covariance " + str(end - start))
 
-    ef = EfficientFrontier(returns, cov, weight_bounds=(0, 1), solver_options={"max_iter": 100000}, verbose=True)
+    weight_bounds = (-1, 1) if shorting else (0, 1)
+    ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"max_iter": 100000})
 
-    start = default_timer()
-    ef.max_sharpe(risk_free_rate=RISK_FREE_RATE)
-    end = default_timer()
-    print("Time to find max sharpe " + str(end - start))
+    ef.max_sharpe(risk_free_rate=risk_free_rate)
 
-    sharpe_pwt = ef.clean_weights(cutoff=ASSET_WEIGHT_CUTOFF, rounding=ASSET_WEIGHT_ROUNDING)
-    performance = ef.portfolio_performance(verbose=True, risk_free_rate=RISK_FREE_RATE)
+    sharpe_pwt = ef.clean_weights(cutoff=asset_cutoff, rounding=asset_rounding)
+    performance = ef.portfolio_performance(risk_free_rate=risk_free_rate)
 
     portfolio = {}
     total = 0
     for key, value in sharpe_pwt.items():
-        if value > 0:
+        if value != 0:
             portfolio[key] = value
             total += value
-
-    print(str(len(portfolio.keys())) + " assets:", portfolio)
-    print("Total:", total)
 
     result = {
         "expected return": performance[0],
         "annual volatility": performance[1],
         "sharpe ratio": performance[2],
-        "portfolio": portfolio
+        "portfolio": portfolio,
+        "total": total
     }
 
     return result
 
 
-def removeTERFromReturns(etfList, returns):
+def remove_ter_from_returns(etf_list, returns):
 
     for index, row in returns.items():
-        for etf in etfList:
+        for etf in etf_list:
             if etf.getName() == index:
                 returns.loc[index] = row - etf.getTER()
 
 
-def getPricesDataFrame(etfList):
-    pricesByDate = {}
+def get_prices_data_frame(etf_list):
+    prices_by_date = {}
 
-    maxSize = 0
-    for etf in etfList:
-        if len(etf.getHistoricalData()) > maxSize:
-            maxSize = len(etf.getHistoricalData())
+    max_size = 0
+    for etf in etf_list:
+        if len(etf.getHistoricalData()) > max_size:
+            max_size = len(etf.getHistoricalData())
 
-    for etf in etfList:
+    for etf in etf_list:
         prices = []
         for datePrice in etf.getHistoricalData():
             price = datePrice["close"]
@@ -121,12 +140,12 @@ def getPricesDataFrame(etfList):
             else:
                 prices.append(price)
 
-        if len(prices) < maxSize:  # adds "NaNs" at the start of the list
-            nans = [float("nan")] * (maxSize - len(prices))
+        if len(prices) < max_size:  # adds "NaNs" at the start of the list
+            nans = [float("nan")] * (max_size - len(prices))
             prices = nans + prices
 
         # identifier = etf.getName() + " - " + etf.getIsin()
         identifier = etf.getName()
-        pricesByDate[identifier] = prices
+        prices_by_date[identifier] = prices
 
-    return pandas.DataFrame(pricesByDate)
+    return pandas.DataFrame(prices_by_date)

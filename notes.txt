@@ -1,18 +1,17 @@
 Questions:
 Fix and understand "covariance matrix is non positive semidefinite" warning (Example: "IE00B99FL386", "LU2090062865", "IE00BFWFPY67", "IE00B7MXFZ59", "LU1291109616", "LU0659579063", "DE000A0D8Q23")
-Remove etfs that aren't traded anymore (maybe also remove ETFs that have less than a year(?) of returns)
+Filter by currency? Some ETFs use a different currency in different exchanges
+Shorting leads to near zero volatility and near infinite sharpe ratio
 
 TO DO:
-Add some filters (cutoff, rounding, shorting, domicile country, distribution policy)
 Dockerize optimizer
 Fix non-complete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days have data normally)
-Add option to calculate returns/covariance based on last 3 years (make it generic)
+Add option to calculate returns/covariance based on last 3 years (make it generic, based on the last x days of data)
 
 Portfolio filter:
 Add maximum weight for a single asset
 Add maximum number of assets
-Allow shorting (gives weird results)
-Filter by: listings, region, country, sector, domicile country, currency, replication, distribution policy, equity class
+Filter by: currency, listings, region, country, sector, equity class
 Maybe need to scrape justETF to get more information(listings)
 
 Display results:

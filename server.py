@@ -1,11 +1,17 @@
-from flask import Flask
+import flask
 import optimizer
-app = Flask(__name__)
+app = flask.Flask(__name__)
 
-@app.route('/optimize')
+
+@app.route('/optimize', methods=["GET"])
 def optimize():
-    result = optimizer.optimize()
-    return result
+    try:
+        body = flask.request.json
+        result = optimizer.optimize(body["optimizerFilters"], body["etfFilters"])
+        return result
+    except Exception as e:
+        return str(e), 400
+
 
 if __name__ == '__main__':
     app.run()

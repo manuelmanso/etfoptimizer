@@ -27,6 +27,15 @@ class ETF:
     def getTER(self):
         return float(self.data["ter"][:-1]) * 0.01
 
+    def getDomicileCountry(self):
+        return self.data["domicileCountry"]
+
+    def getReplicationMethod(self):
+        return self.data["replicationMethod"]
+
+    def getDistributionPolicy(self):
+        return self.data["distributionPolicy"]
+
     def getRICs(self):
         if "RICs" in self.data:
             return self.data["RICs"]
