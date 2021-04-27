@@ -5,14 +5,14 @@ Shorting leads to near zero volatility and near infinite sharpe ratio
 
 TO DO:
 Find out why prints don't show up in logs
-Move code to src/ directory
-Use docker to set environment variables for EIKON api key, justETFURL
+Use docker to set environment variables for EIKON api key, justETFURL, mongoDB host and port
 Create simple README
 Understand how docker volumes work for mongoDB, remove hardcoded local URL
 Find out how to remote debug inside container
-Add way to retrieve data on docker-compose up if there isn't data
-Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
+Reformat code in retrieveData and ETF
+Add way to retrieve data on docker-compose up if there isn't data (run python retrieveData before starting the server)
 Add option to calculate returns/covariance based on last 3 years (make it generic, based on the last x days of data)
+Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
 Improve exception handling for server
 
 Portfolio filter:
