@@ -2,13 +2,18 @@ services:
   optimizer:
     image: optimizer
     ports:
-      - "5000:5000"
+      - ${OPTIMIZER_HOST_PORT}:${OPTIMIZER_CONTAINER_PORT}
+    environment:
+      - EIKON_APP_KEY=${EIKON_APP_KEY}
+      - JUSTETF_URL=${JUSTETF_URL}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - MONGO_DB_PORT=${MONGO_DB_CONTAINER_PORT}
     depends_on:
       - mongo
   mongo:
     image: mongo
     ports:
-      - "2717:27017"
+      - ${MONGO_DB_HOST_PORT}:${MONGO_DB_CONTAINER_PORT}
     volumes:
     - C:\Users\manel\Desktop\TUM\SS 2021\IDP ETF\mongo:/data/db
 

@@ -1,5 +1,5 @@
 import pandas
-from retrieveData import getEtfListFromMongoDB
+from mongoDB import get_etf_list
 from pypfopt import expected_returns
 from pypfopt import risk_models
 from pypfopt.efficient_frontier import EfficientFrontier
@@ -13,7 +13,7 @@ ASSET_WEIGHT_ROUNDING = 4
 SHORTING = False
 
 
-full_etf_list = getEtfListFromMongoDB()
+full_etf_list = get_etf_list()
 
 
 def optimize(optimizer_parameters, etf_filters):
@@ -41,7 +41,7 @@ def filter_etfs_without_data(etf_list, optimizer_parameters):
     minimum_days_with_data = optimizer_parameters.get("minimumDaysWithData")
 
     for etf in etf_list:
-        if len(etf.getHistoricalData()) >= minimum_days_with_data:
+        if len(etf.get_historical_data()) >= minimum_days_with_data:
             etfs_with_data.append(etf)
 
     print("Filtered ETFs that don't have enough data: {} ETFs left".format(len(etfs_with_data)))
@@ -57,13 +57,13 @@ def filter_etfs(etf_list, etf_filters):
 
     for etf in etf_list:
 
-        if domicile_country and domicile_country != etf.getDomicileCountry():
+        if domicile_country and domicile_country != etf.get_domicile_country():
             continue
 
-        if replication_method and replication_method != etf.getReplicationMethod():
+        if replication_method and replication_method != etf.get_replication_method():
             continue
 
-        if distribution_policy and distribution_policy != etf.getDistributionPolicy():
+        if distribution_policy and distribution_policy != etf.get_distribution_policy():
             continue
 
         etfs.append(etf)
@@ -119,33 +119,38 @@ def remove_ter_from_returns(etf_list, returns):
 
     for index, row in returns.items():
         for etf in etf_list:
-            if etf.getName() == index:
-                returns.loc[index] = row - etf.getTER()
+            if etf.get_name() == index:
+                returns.loc[index] = row - etf.get_ter()
 
 
 def get_prices_data_frame(etf_list):
     prices_by_date = {}
 
-    max_size = 0
-    for etf in etf_list:
-        if len(etf.getHistoricalData()) > max_size:
-            max_size = len(etf.getHistoricalData())
+    max_len = get_max_len_historical_data(etf_list)
 
     for etf in etf_list:
         prices = []
-        for datePrice in etf.getHistoricalData():
+        for datePrice in etf.get_historical_data():
             price = datePrice["close"]
             if price == 0:  # Fixes ETFs that have 0 as their first value and then get an infinite return
                 prices.append(float("nan"))
             else:
                 prices.append(price)
 
-        if len(prices) < max_size:  # adds "NaNs" at the start of the list
-            nans = [float("nan")] * (max_size - len(prices))
+        if len(prices) < max_len:  # adds "NaNs" at the start of the list
+            nans = [float("nan")] * (max_len - len(prices))
             prices = nans + prices
 
-        # identifier = etf.getName() + " - " + etf.getIsin()
-        identifier = etf.getName()
+        # identifier = etf.get_name() + " - " + etf.get_isin()
+        identifier = etf.get_name()
         prices_by_date[identifier] = prices
 
     return pandas.DataFrame(prices_by_date)
+
+
+def get_max_len_historical_data(etf_list):
+    max_len = 0
+    for etf in etf_list:
+        if len(etf.get_historical_data()) > max_len:
+            max_len = len(etf.get_historical_data())
+    return max_len

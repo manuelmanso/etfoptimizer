@@ -4,16 +4,13 @@ Filter by currency? Some ETFs use a different currency in different exchanges
 Shorting leads to near zero volatility and near infinite sharpe ratio
 
 TO DO:
-Find out why prints don't show up in logs
-Use docker to set environment variables for EIKON api key, justETFURL, mongoDB host and port
-Create simple README
 Understand how docker volumes work for mongoDB, remove hardcoded local URL
-Find out how to remote debug inside container
-Reformat code in retrieveData and ETF
-Add way to retrieve data on docker-compose up if there isn't data (run python retrieveData before starting the server)
+Add way to run dev server locally (add dev properties)
 Add option to calculate returns/covariance based on last 3 years (make it generic, based on the last x days of data)
 Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
 Improve exception handling for server
+Add way to retrieveData and add it to the mongoDB from outside the container
+Improve README
 
 Portfolio filter:
 Add maximum weight for a single asset

@@ -1,62 +1,34 @@
 import requests
 import eikon
 import pandas
-from ETF import *
 import datetime
-from pymongo import MongoClient
-from timeit import default_timer
-from config import EIKON_APP_KEY, JUSTETF_URL
+from mongoDB import get_etf_list, save_etf_list, update_etf_historical_data
+from ETF import *
+import os
+
+
+EIKON_APP_KEY = os.environ['EIKON_APP_KEY']
+JUSTETF_URL = os.environ['JUSTETF_URL']
 
 START_DATE = "2000-01-01"
 
 
 def main():
-    etfList = getEtfListFromMongoDB()
+    etf_list = get_etf_list()
 
-    if len(etfList) == 0:
-        etfData = getETFData()
-        etfList = getETFListFromJson(etfData)
-        getRICCodes(etfList)
-        saveETFListToMongoDB(etfList)
-        etfList = getEtfListFromMongoDB()
+    if len(etf_list) == 0:
+        etf_data = get_etf_data()
+        etf_list = get_etf_list_from_json(etf_data)
+        get_ric_rodes(etf_list)
+        save_etf_list(etf_list)
+        etf_list = get_etf_list()
 
-    print("Found " + str(len(etfList)) + " ETFs")
+    print("Found " + str(len(etf_list)) + " ETFs")
 
-    getHistoricalData(etfList)
-
-
-def getMongoDB():
-    client = MongoClient(host="mongo", port=27017)
-    return client.etfOptimizer
+    get_historical_data(etf_list)
 
 
-def getEtfListFromMongoDB():
-    print("Getting ETFs from MongoDB")
-    start = default_timer()
-    db = getMongoDB()
-    etfs = db.etfs.find()
-    etfList = getETFListFromJson(etfs)
-    end = default_timer()
-    print("Time to get etfList from mongoDB " + str(end - start))
-    return etfList
-
-
-def saveETFListToMongoDB(etfList):
-    jsonData = []
-
-    for etf in etfList:
-        jsonData.append(etf.toJSON())
-
-    db = getMongoDB()
-    db.etfs.insert_many(jsonData)
-
-
-def updateEtfHistoricalData(etf):
-    db = getMongoDB()
-    db.etfs.update_one({'_id': etf.getId()}, {'$set': {'historicalData': etf.getHistoricalData()}})
-
-
-def getETFData():
+def get_etf_data():
     print()
     print("Getting all ETFs from justETF")
     
@@ -75,97 +47,96 @@ def getETFData():
 
         response = requests.post(JUSTETF_URL, headers=headers, data=body)
 
-        
     except requests.exceptions.RequestException as e:
         print(e)
 
-    responseContent = response.json()
+    json_data = response.json()
 
-    return responseContent["data"]
+    return json_data["data"]
 
 
-def getRICCodes(etfList):
+def get_ric_rodes(etf_list):
     print()
     print("Get RIC codes from ISIN")
 
     eikon.set_app_key(EIKON_APP_KEY)
 
-    isinCodes = []
+    isin_codes = []
 
-    for etf in etfList:
-        isinCodes.append(etf.getIsin())
+    for etf in etf_list:
+        isin_codes.append(etf.getIsin())
 
-    RIC_codes = eikon.get_symbology(isinCodes, from_symbol_type="ISIN", to_symbol_type="RIC", bestMatch=False)
+    ric_codes = eikon.get_symbology(isin_codes, from_symbol_type="ISIN", to_symbol_type="RIC", bestMatch=False)
 
     i = 0
-    for index, row in RIC_codes.iterrows():
-        RICs = row["RICs"]
-        etfList[i].setRICs(RICs)
+    for index, row in ric_codes.iterrows():
+        rics = row["RICs"]
+        etf_list[i].setRICs(rics)
         i += 1
 
 
-def getHistoricalData(etfList):
+def get_historical_data(etf_list):
     print()
     print("Get historical data for ETFs")
 
     eikon.set_app_key(EIKON_APP_KEY)
 
-    for i in range(len(etfList)):
-        etf = etfList[i]
+    for i in range(len(etf_list)):
+        etf = etf_list[i]
         if len(etf.getHistoricalData()) > 0:
             continue
 
         print(str(i) + ": " + etf.getName())
 
-        historicalData = getHistoricalDataForETF(etf)
-        if historicalData is None:
+        historical_data = get_historical_data_for_etf(etf)
+        if historical_data is None:
             print("Could not get any results for this ETF")
             continue
         else:
-            etf.setHistoricalData(historicalData)
-            print("Got " + str(len(historicalData)) + " days of data")
+            etf.setHistoricalData(historical_data)
+            print("Got " + str(len(historical_data)) + " days of data")
 
-        updateEtfHistoricalData(etf)
+        update_etf_historical_data(etf)
 
 
-def getHistoricalDataForETF(etf):
-    RICs = etf.getRICs()
-    if len(RICs) == 0:
+def get_historical_data_for_etf(etf):
+    rics = etf.getRICs()
+    if len(rics) == 0:
         print("Skipping ETF because it has no RICs")
 
-    for ric in RICs:
+    for ric in rics:
         try:
-            historicalData = []
+            historical_data = []
 
-            startDate = START_DATE
-            endDate = datetime.datetime.now()
-            while len(historicalData) % 3000 == 0 and isDateInThePast(startDate):
-                data = getDataByRicFromStartDate(ric, startDate, endDate)
+            start_date = START_DATE
+            end_date = datetime.datetime.now()
+            while len(historical_data) % 3000 == 0 and is_date_in_the_past(start_date):
+                data = get_data_by_ric_from_start_date(ric, start_date, end_date)
 
                 if len(data) == 0:
                     continue
 
-                historicalData = data + historicalData
-                endDate = getPreviousDay(data[0]["date"])
+                historical_data = data + historical_data
+                end_date = get_previous_day(data[0]["date"])
 
-            return historicalData
+            return historical_data
 
         except Exception as e:
             print(e)
             print("Could not get results for RIC " + ric)
 
 
-def getPreviousDay(dateString):
-    date = datetime.datetime.strptime(dateString, "%Y-%m-%d") - datetime.timedelta(days=1)
+def get_previous_day(date_string):
+    date = datetime.datetime.strptime(date_string, "%Y-%m-%d") - datetime.timedelta(days=1)
     return date.strftime('%Y-%m-%d')
 
 
-def isDateInThePast(dateString):
-    return datetime.datetime.strptime(dateString, "%Y-%m-%d").date() < datetime.datetime.now().date()
+def is_date_in_the_past(date_string):
+    return datetime.datetime.strptime(date_string, "%Y-%m-%d").date() < datetime.datetime.now().date()
 
 
-def getDataByRicFromStartDate(ric, startDate, endDate):
-    result = eikon.get_timeseries(ric, start_date=startDate, end_date=endDate, fields="CLOSE")
+def get_data_by_ric_from_start_date(ric, start_date, end_date):
+    result = eikon.get_timeseries(ric, start_date=start_date, end_date=end_date, fields="CLOSE")
 
     data = []
     for index, row in result.iterrows():
