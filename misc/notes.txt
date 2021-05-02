@@ -5,12 +5,15 @@ Shorting leads to near zero volatility and near infinite sharpe ratio
 
 TO DO:
 Understand how docker volumes work for mongoDB, remove hardcoded local URL
-Add way to run dev server locally (add dev properties)
 Add option to calculate returns/covariance based on last 3 years (make it generic, based on the last x days of data)
 Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
 Improve exception handling for server
 Add way to retrieveData and add it to the mongoDB from outside the container
 Improve README
+Create UI to allow users to interact with the optimizer
+Implement system to perform back-testing (optimize portfolio based on last 3 years of data, and then reoptimize every 3 months, check results)
+Add another optimizer (maximum volatility, expected return, regime switching or other) and compare
+Use etfDB in the future (or get the full list of ETFs from justETF)
 
 Portfolio filter:
 Add maximum weight for a single asset
@@ -22,11 +25,3 @@ Display results:
 Show ETFs by name and ISIN
 Select initial value and display how many shares to buy of each
 Create plot
-
-What to do with results?
-Perform back-testing
-Add another optimizer (maximum volatility, expected return, regime switching or other) and compare
-
-Future:
-Use etfDB in the future (or get the full list of ETFs from justETF)
-Create UI to allow users to interact with the optimizer

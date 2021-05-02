@@ -8,6 +8,7 @@ services:
       - JUSTETF_URL=${JUSTETF_URL}
       - MONGO_DB_HOST=${MONGO_DB_HOST}
       - MONGO_DB_PORT=${MONGO_DB_CONTAINER_PORT}
+      - OPTIMIZER_CONTAINER_PORT=${OPTIMIZER_CONTAINER_PORT}
     depends_on:
       - mongo
   mongo:

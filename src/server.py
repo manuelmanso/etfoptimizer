@@ -1,5 +1,8 @@
 import flask
 import optimizer
+import os
+
+OPTIMIZER_CONTAINER_PORT = int(os.environ['OPTIMIZER_CONTAINER_PORT'])
 
 app = flask.Flask(__name__)
 
@@ -15,4 +18,4 @@ def optimize():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=OPTIMIZER_CONTAINER_PORT)

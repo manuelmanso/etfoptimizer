@@ -128,6 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+*.env
+!example.env
+
 .idea/
 src/config.py
 misc/etfData.json
