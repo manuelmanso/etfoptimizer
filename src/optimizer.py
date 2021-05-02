@@ -1,9 +1,12 @@
 import pandas
+import os
 from mongoDB import get_etf_list
 from pypfopt import expected_returns
 from pypfopt import risk_models
 from pypfopt.efficient_frontier import EfficientFrontier
 from timeit import default_timer
+
+MAX_ETF_LIST_SIZE = int(os.environ.get('MAX_ETF_LIST_SIZE', -1))
 
 RISK_FREE_RATE = 0.02
 REMOVE_TER = True
@@ -11,6 +14,7 @@ MINIMUM_DAYS_WITH_DATA = 500  # around 2 years
 ASSET_WEIGHT_CUTOFF = 0.01
 ASSET_WEIGHT_ROUNDING = 4
 SHORTING = False
+ROLLING_WINDOW_IN_DAYS = 0
 
 
 full_etf_list = get_etf_list()
@@ -26,6 +30,10 @@ def optimize(optimizer_parameters, etf_filters):
 
     if len(etf_list) == 0:
         raise Exception("No ETFs are left after filtering. Can't perform portfolio optimization.")
+
+    if len(etf_list) > 1 and MAX_ETF_LIST_SIZE != -1:
+        print("Too many ETFs, calculation will take too long. Using only the first {} ETFs".format(MAX_ETF_LIST_SIZE))
+        etf_list = etf_list[:MAX_ETF_LIST_SIZE]
 
     start = default_timer()
     portfolio = find_max_sharpe_portfolio(etf_list, optimizer_parameters)
@@ -79,8 +87,9 @@ def find_max_sharpe_portfolio(etf_list, optimize_parameters):
     remove_ter = optimize_parameters.get("removeTER", REMOVE_TER)
     risk_free_rate = optimize_parameters.get("riskFreeRate", RISK_FREE_RATE)
     shorting = optimize_parameters.get("shorting", SHORTING)
+    rolling_window_in_days = optimize_parameters.get("rollingWindowInDays", ROLLING_WINDOW_IN_DAYS)
 
-    prices = get_prices_data_frame(etf_list)
+    prices = get_prices_data_frame(etf_list, rolling_window_in_days)
 
     returns = expected_returns.mean_historical_return(prices)
 
@@ -123,7 +132,15 @@ def remove_ter_from_returns(etf_list, returns):
                 returns.loc[index] = row - etf.get_ter()
 
 
-def get_prices_data_frame(etf_list):
+def get_prices_data_frame(etf_list, rolling_window_in_days):
+    prices = get_prices_data_frame_full_history(etf_list)
+    if rolling_window_in_days > 0:
+        prices = prices[-rolling_window_in_days:]
+
+    return prices
+
+
+def get_prices_data_frame_full_history(etf_list):
     prices_by_date = {}
 
     max_len = get_max_len_historical_data(etf_list)
