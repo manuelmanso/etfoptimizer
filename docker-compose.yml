@@ -16,7 +16,7 @@ services:
     ports:
       - ${MONGO_DB_HOST_PORT}:${MONGO_DB_CONTAINER_PORT}
     volumes:
-    - C:\Users\manel\Desktop\TUM\SS 2021\IDP ETF\mongo:/data/db
+      - ${MONGO_DB_DATA_LOCATION}:/data/db
 
-#volumes:
-#  logvolume01: {}
+volumes:
+  db_data: {}

@@ -64,14 +64,14 @@ def get_ric_rodes(etf_list):
     isin_codes = []
 
     for etf in etf_list:
-        isin_codes.append(etf.getIsin())
+        isin_codes.append(etf.get_isin())
 
     ric_codes = eikon.get_symbology(isin_codes, from_symbol_type="ISIN", to_symbol_type="RIC", bestMatch=False)
 
     i = 0
     for index, row in ric_codes.iterrows():
         rics = row["RICs"]
-        etf_list[i].setRICs(rics)
+        etf_list[i].set_rics(rics)
         i += 1
 
 
@@ -83,24 +83,24 @@ def get_historical_data(etf_list):
 
     for i in range(len(etf_list)):
         etf = etf_list[i]
-        if len(etf.getHistoricalData()) > 0:
+        if len(etf.get_historical_data()) > 0:
             continue
 
-        print(str(i) + ": " + etf.getName())
+        print(str(i) + ": " + etf.get_name())
 
         historical_data = get_historical_data_for_etf(etf)
         if historical_data is None:
             print("Could not get any results for this ETF")
             continue
         else:
-            etf.setHistoricalData(historical_data)
+            etf.set_historical_data(historical_data)
             print("Got " + str(len(historical_data)) + " days of data")
 
         update_etf_historical_data(etf)
 
 
 def get_historical_data_for_etf(etf):
-    rics = etf.getRICs()
+    rics = etf.get_rics()
     if len(rics) == 0:
         print("Skipping ETF because it has no RICs")
 
