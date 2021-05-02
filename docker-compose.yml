@@ -17,6 +17,3 @@ services:
       - ${MONGO_DB_HOST_PORT}:${MONGO_DB_CONTAINER_PORT}
     volumes:
       - ${MONGO_DB_DATA_LOCATION}:/data/db
-
-volumes:
-  db_data: {}
