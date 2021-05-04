@@ -8,6 +8,10 @@ from timeit import default_timer
 
 MAX_ETF_LIST_SIZE = int(os.environ.get('MAX_ETF_LIST_SIZE', -1))
 
+OPTIMIZERS = ["MaxSharpe", "MinimumVolatility", "EfficientRisk", "EfficientReturn"]
+
+OPTIMIZER = "MaxSharpe"
+
 RISK_FREE_RATE = 0.02
 REMOVE_TER = True
 MINIMUM_DAYS_WITH_DATA = 500  # around 2 years
@@ -24,6 +28,10 @@ def optimize(optimizer_parameters, etf_filters):
 
     global full_etf_list
 
+    remove_ter = optimizer_parameters.get("removeTER", REMOVE_TER)
+    shorting = optimizer_parameters.get("shorting", SHORTING)
+    rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays", ROLLING_WINDOW_IN_DAYS)
+
     etf_list = filter_etfs_without_data(full_etf_list, optimizer_parameters)
 
     etf_list = filter_etfs(etf_list, etf_filters)
@@ -36,7 +44,22 @@ def optimize(optimizer_parameters, etf_filters):
         etf_list = etf_list[:MAX_ETF_LIST_SIZE]
 
     start = default_timer()
-    portfolio = find_max_sharpe_portfolio(etf_list, optimizer_parameters)
+
+    prices = get_prices_data_frame(etf_list, rolling_window_in_days)
+
+    returns = expected_returns.mean_historical_return(prices)
+
+    if remove_ter:
+        remove_ter_from_returns(etf_list, returns)
+
+    cov = risk_models.sample_cov(prices)
+
+    weight_bounds = (-1, 1) if shorting else (0, 1)
+    ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"max_iter": 100000}, verbose=True)
+
+    call_optimizer(ef, optimizer_parameters)
+
+    portfolio = get_portfolio_and_performance(ef, optimizer_parameters)
     end = default_timer()
     print("Time to find max sharpe {}".format(end - start))
 
@@ -80,28 +103,39 @@ def filter_etfs(etf_list, etf_filters):
     return etfs
 
 
-def find_max_sharpe_portfolio(etf_list, optimize_parameters):
+def call_optimizer(ef, optimizer_parameters):
+    optimizer = optimizer_parameters.get("optimizer", OPTIMIZER)
+    target_volatility = optimizer_parameters.get("targetVolatility", None)
+    target_return = optimizer_parameters.get("targetReturn", None)
+    risk_free_rate = optimizer_parameters.get("riskFreeRate", RISK_FREE_RATE)
 
-    asset_cutoff = optimize_parameters.get("assetCutoff", ASSET_WEIGHT_CUTOFF)
-    asset_rounding = optimize_parameters.get("assetRounding", ASSET_WEIGHT_ROUNDING)
-    remove_ter = optimize_parameters.get("removeTER", REMOVE_TER)
-    risk_free_rate = optimize_parameters.get("riskFreeRate", RISK_FREE_RATE)
-    shorting = optimize_parameters.get("shorting", SHORTING)
-    rolling_window_in_days = optimize_parameters.get("rollingWindowInDays", ROLLING_WINDOW_IN_DAYS)
+    if optimizer == "MaxSharpe":
+        ef.max_sharpe(risk_free_rate=risk_free_rate)
 
-    prices = get_prices_data_frame(etf_list, rolling_window_in_days)
+    elif optimizer == "MinimumVolatility":
+        ef.min_volatility()
 
-    returns = expected_returns.mean_historical_return(prices)
+    elif optimizer == "EfficientRisk":
+        if target_volatility is None:
+            raise Exception("No target volatility provided for EfficientRisk optimizer.")
 
-    if remove_ter:
-        remove_ter_from_returns(etf_list, returns)
+        ef.efficient_risk(target_volatility=target_volatility)
 
-    cov = risk_models.sample_cov(prices)
+    elif optimizer == "EfficientReturn":
+        if target_return is None:
+            raise Exception("No target return provided for EfficientReturn optimizer.")
 
-    weight_bounds = (-1, 1) if shorting else (0, 1)
-    ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"max_iter": 100000})
+        ef.efficient_return(target_return=target_return)
 
-    ef.max_sharpe(risk_free_rate=risk_free_rate)
+    else:
+        raise Exception("No optimizer was provided. Provide one of: {}".format(OPTIMIZERS))
+
+
+def get_portfolio_and_performance(ef, optimizer_parameters):
+
+    risk_free_rate = optimizer_parameters.get("riskFreeRate", RISK_FREE_RATE)
+    asset_cutoff = optimizer_parameters.get("assetCutoff", ASSET_WEIGHT_CUTOFF)
+    asset_rounding = optimizer_parameters.get("assetRounding", ASSET_WEIGHT_ROUNDING)
 
     sharpe_pwt = ef.clean_weights(cutoff=asset_cutoff, rounding=asset_rounding)
     performance = ef.portfolio_performance(risk_free_rate=risk_free_rate)
