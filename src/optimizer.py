@@ -1,8 +1,6 @@
 import pandas
 import os
-from mongoDB import get_etf_list
-from pypfopt import expected_returns
-from pypfopt import risk_models
+from pypfopt import expected_returns, objective_functions, risk_models
 from pypfopt.efficient_frontier import EfficientFrontier
 from timeit import default_timer
 
@@ -11,7 +9,6 @@ MAX_ETF_LIST_SIZE = int(os.environ.get('MAX_ETF_LIST_SIZE', -1))
 OPTIMIZERS = ["MaxSharpe", "MinimumVolatility", "EfficientRisk", "EfficientReturn"]
 
 OPTIMIZER = "MaxSharpe"
-
 RISK_FREE_RATE = 0.02
 REMOVE_TER = True
 MINIMUM_DAYS_WITH_DATA = 500  # around 2 years
@@ -21,25 +18,20 @@ SHORTING = False
 ROLLING_WINDOW_IN_DAYS = 0
 
 
-full_etf_list = get_etf_list()
-
-
-def optimize(optimizer_parameters, etf_filters):
-
-    global full_etf_list
+def optimize(etf_list, optimizer_parameters, etf_filters):
 
     remove_ter = optimizer_parameters.get("removeTER", REMOVE_TER)
     shorting = optimizer_parameters.get("shorting", SHORTING)
     rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays", ROLLING_WINDOW_IN_DAYS)
 
-    etf_list = filter_etfs_without_data(full_etf_list, optimizer_parameters)
+    etf_list = filter_etfs_without_data(etf_list, optimizer_parameters)
 
     etf_list = filter_etfs(etf_list, etf_filters)
 
     if len(etf_list) == 0:
         raise Exception("No ETFs are left after filtering. Can't perform portfolio optimization.")
 
-    if len(etf_list) > 1 and MAX_ETF_LIST_SIZE != -1:
+    if MAX_ETF_LIST_SIZE != -1 and len(etf_list) > MAX_ETF_LIST_SIZE:
         print("Too many ETFs, calculation will take too long. Using only the first {} ETFs".format(MAX_ETF_LIST_SIZE))
         etf_list = etf_list[:MAX_ETF_LIST_SIZE]
 
@@ -55,7 +47,7 @@ def optimize(optimizer_parameters, etf_filters):
     cov = risk_models.sample_cov(prices)
 
     weight_bounds = (-1, 1) if shorting else (0, 1)
-    ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"max_iter": 100000}, verbose=True)
+    ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"max_iter": 100000})
 
     call_optimizer(ef, optimizer_parameters)
 
@@ -151,6 +143,7 @@ def get_portfolio_and_performance(ef, optimizer_parameters):
         "expected return": performance[0],
         "annual volatility": performance[1],
         "sharpe ratio": performance[2],
+        "portfolio size": len(portfolio),
         "portfolio": portfolio,
         "total": total
     }
