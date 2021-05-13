@@ -27,5 +27,17 @@ def get_parameters():
     return parameters
 
 
+@app.route('/etfList', methods=["GET"])
+def get_eft_list():
+    etf_json_list = []
+
+    for etf in full_etf_list:
+        etf_as_json = etf.get_data()
+        etf_as_json["daysWithData"] = len(etf.get_historical_data())
+        etf_json_list.append(etf_as_json)
+
+    return {"etfList": etf_json_list}
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=OPTIMIZER_CONTAINER_PORT)

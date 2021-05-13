@@ -1,10 +1,9 @@
 import pandas
-import os
-from pypfopt import expected_returns, objective_functions, risk_models
+import matplotlib.pyplot as plt
+from pypfopt import expected_returns, risk_models, plotting, CLA
 from pypfopt.efficient_frontier import EfficientFrontier
-from timeit import default_timer
 
-MAX_ETF_LIST_SIZE = int(os.environ.get('MAX_ETF_LIST_SIZE', -1))
+from timeit import default_timer
 
 OPTIMIZERS = ["MaxSharpe", "MinimumVolatility", "EfficientRisk", "EfficientReturn"]
 
@@ -16,6 +15,7 @@ ASSET_WEIGHT_CUTOFF = 0.01
 ASSET_WEIGHT_ROUNDING = 4
 SHORTING = False
 ROLLING_WINDOW_IN_DAYS = 0
+MAX_ETF_LIST_SIZE = 400
 
 
 def optimize(etf_list, optimizer_parameters, etf_filters):
@@ -24,16 +24,7 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     shorting = optimizer_parameters.get("shorting", SHORTING)
     rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays", ROLLING_WINDOW_IN_DAYS)
 
-    etf_list = filter_etfs_without_data(etf_list, optimizer_parameters)
-
-    etf_list = filter_etfs(etf_list, etf_filters)
-
-    if len(etf_list) == 0:
-        raise Exception("No ETFs are left after filtering. Can't perform portfolio optimization.")
-
-    if MAX_ETF_LIST_SIZE != -1 and len(etf_list) > MAX_ETF_LIST_SIZE:
-        print("Too many ETFs, calculation will take too long. Using only the first {} ETFs".format(MAX_ETF_LIST_SIZE))
-        etf_list = etf_list[:MAX_ETF_LIST_SIZE]
+    etf_list, etfs_matching_filters = filter_etfs(etf_list, optimizer_parameters, etf_filters)
 
     start = default_timer()
 
@@ -47,15 +38,40 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     cov = risk_models.sample_cov(prices)
 
     weight_bounds = (-1, 1) if shorting else (0, 1)
-    ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"max_iter": 100000})
+    # solver_options={"max_iter": MAX_ITERATIONS}
+    ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"solver": "ECOS"}, verbose=True)
+
+    fig, ax = plt.subplots()
+    plotting.plot_efficient_frontier(ef, ax=ax, points=10, show_assets=True)
 
     call_optimizer(ef, optimizer_parameters)
 
-    portfolio = get_portfolio_and_performance(ef, optimizer_parameters)
+    portfolio = get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filters)
+    plot_ef(portfolio, ax)
+
     end = default_timer()
     print("Time to find max sharpe {}".format(end - start))
 
     return portfolio
+
+
+def filter_etfs(etf_list, optimizer_parameters, etf_filters):
+    max_etf_list_size = optimizer_parameters.get("maxETFListSize", MAX_ETF_LIST_SIZE)
+
+    etf_list = filter_etfs_without_data(etf_list, optimizer_parameters)
+
+    etf_list = filter_etfs_using_filters(etf_list, etf_filters)
+    etf_list_size_after_filtering = len(etf_list)
+
+    if etf_list_size_after_filtering == 0:
+        raise Exception("No ETFs are left after filtering. Can't perform portfolio optimization. " +
+                        "Check if your filters are correct.")
+
+    if etf_list_size_after_filtering > max_etf_list_size:
+        print("Too many ETFs, calculation will take too long. Using only the first {} ETFs".format(max_etf_list_size))
+        etf_list = etf_list[:max_etf_list_size]
+
+    return etf_list, etf_list_size_after_filtering
 
 
 def filter_etfs_without_data(etf_list, optimizer_parameters):
@@ -71,22 +87,22 @@ def filter_etfs_without_data(etf_list, optimizer_parameters):
     return etfs_with_data
 
 
-def filter_etfs(etf_list, etf_filters):
+def filter_etfs_using_filters(etf_list, etf_filters):
     etfs = []
 
-    domicile_country = etf_filters.get("domicileCountry")
-    replication_method = etf_filters.get("replicationMethod")
-    distribution_policy = etf_filters.get("distributionPolicy")
+    domicile_country = etf_filters.get("domicileCountry", None)
+    replication_method = etf_filters.get("replicationMethod", None)
+    distribution_policy = etf_filters.get("distributionPolicy", None)
 
     for etf in etf_list:
 
-        if domicile_country and domicile_country != etf.get_domicile_country():
+        if domicile_country is not None and domicile_country != etf.get_domicile_country():
             continue
 
-        if replication_method and replication_method != etf.get_replication_method():
+        if replication_method is not None  and replication_method != etf.get_replication_method():
             continue
 
-        if distribution_policy and distribution_policy != etf.get_distribution_policy():
+        if distribution_policy is not None  and distribution_policy != etf.get_distribution_policy():
             continue
 
         etfs.append(etf)
@@ -123,7 +139,7 @@ def call_optimizer(ef, optimizer_parameters):
         raise Exception("No optimizer was provided. Provide one of: {}".format(OPTIMIZERS))
 
 
-def get_portfolio_and_performance(ef, optimizer_parameters):
+def get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filters):
 
     risk_free_rate = optimizer_parameters.get("riskFreeRate", RISK_FREE_RATE)
     asset_cutoff = optimizer_parameters.get("assetCutoff", ASSET_WEIGHT_CUTOFF)
@@ -140,15 +156,24 @@ def get_portfolio_and_performance(ef, optimizer_parameters):
             total += value
 
     result = {
-        "expected return": performance[0],
-        "annual volatility": performance[1],
-        "sharpe ratio": performance[2],
-        "portfolio size": len(portfolio),
+        "expectedReturn": performance[0],
+        "annualVolatility": performance[1],
+        "sharpeRatio": performance[2],
+        "portfolioSize": len(portfolio),
         "portfolio": portfolio,
-        "total": total
+        "total": total,
+        "matchingFilters": etfs_matching_filters
     }
 
     return result
+
+
+def plot_ef(portfolio, ax):
+    ax.scatter(portfolio["annualVolatility"], portfolio["expectedReturn"], marker="*", s=100, c="r", label="Optimized Portfolio")
+    ax.set_title("Efficient Frontier")
+    ax.legend()
+    plt.tight_layout()
+    plt.savefig("plots/efficientFrontier")
 
 
 def remove_ter_from_returns(etf_list, returns):
@@ -185,8 +210,7 @@ def get_prices_data_frame_full_history(etf_list):
             nans = [float("nan")] * (max_len - len(prices))
             prices = nans + prices
 
-        # identifier = etf.get_name() + " - " + etf.get_isin()
-        identifier = etf.get_name()
+        identifier = etf.get_name() + " - " + etf.get_isin()
         prices_by_date[identifier] = prices
 
     return pandas.DataFrame(prices_by_date)

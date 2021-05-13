@@ -5,7 +5,6 @@ Shorting leads to near zero volatility and therefore near infinite sharpe ratio
 Running the optimization for more than ~400 ETFs can take really long (minutes). Will be a problem.
 
 TO DO:
-Figure out why EfficientRisk and EfficientReturn don't work
 Create simple UI to allow users to interact with the optimizer
 Improve README
 Deploy application in GCP
@@ -19,9 +18,13 @@ Maybe need to scrape justETF to get more information(listings)
 Display results:
 Show ETFs by name and ISIN
 Select initial value and display how many shares to buy of each
-Create plot
+Create plot of efficient frontier
+Create pie chart of asset distribution
 
 Future:
+Figure out why plots don't work for some filters
+Look at other covariance matrix algorithms - Ledoit Wolf
+Show how many ETFs there are for each filter
 Add constraints: maximum weight for single asset and maximum number of assets
 Check L2 regularization (check if it changes the number of ETFs in the portfolio)
 Use etfDB in the future (or get the full list of ETFs from justETF)
