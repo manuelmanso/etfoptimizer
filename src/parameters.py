@@ -1,3 +1,6 @@
+import optimizer
+
+
 def get_parameters(etf_list):
     domicile_countries = []
     distribution_policies = []
@@ -14,5 +17,6 @@ def get_parameters(etf_list):
     return {
         "domicileCountries": domicile_countries,
         "distributionPolicies": distribution_policies,
-        "replicationMethods": replication_methods
+        "replicationMethods": replication_methods,
+        "optimizers": optimizer.OPTIMIZERS
     }

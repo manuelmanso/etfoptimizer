@@ -135,3 +135,4 @@ dmypy.json
 src/config.py
 misc/etfData.json
 misc/results.txt
+plots/

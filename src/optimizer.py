@@ -10,7 +10,7 @@ OPTIMIZERS = ["MaxSharpe", "MinimumVolatility", "EfficientRisk", "EfficientRetur
 OPTIMIZER = "MaxSharpe"
 RISK_FREE_RATE = 0.02
 REMOVE_TER = True
-MINIMUM_DAYS_WITH_DATA = 500  # around 2 years
+MINIMUM_DAYS_WITH_DATA = 0
 ASSET_WEIGHT_CUTOFF = 0.01
 ASSET_WEIGHT_ROUNDING = 4
 SHORTING = False
@@ -22,9 +22,11 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
 
     remove_ter = optimizer_parameters.get("removeTER", REMOVE_TER)
     shorting = optimizer_parameters.get("shorting", SHORTING)
-    rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays", ROLLING_WINDOW_IN_DAYS)
+    rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays")
+    if rolling_window_in_days is None:
+        rolling_window_in_days = ROLLING_WINDOW_IN_DAYS
 
-    etf_list, etfs_matching_filters = filter_etfs(etf_list, optimizer_parameters, etf_filters)
+    etf_list, etfs_matching_filters = filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters)
 
     start = default_timer()
 
@@ -55,10 +57,8 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     return portfolio
 
 
-def filter_etfs(etf_list, optimizer_parameters, etf_filters):
+def filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters):
     max_etf_list_size = optimizer_parameters.get("maxETFListSize", MAX_ETF_LIST_SIZE)
-
-    etf_list = filter_etfs_without_data(etf_list, optimizer_parameters)
 
     etf_list = filter_etfs_using_filters(etf_list, etf_filters)
     etf_list_size_after_filtering = len(etf_list)
@@ -74,41 +74,36 @@ def filter_etfs(etf_list, optimizer_parameters, etf_filters):
     return etf_list, etf_list_size_after_filtering
 
 
-def filter_etfs_without_data(etf_list, optimizer_parameters):
-    etfs_with_data = []
-
-    minimum_days_with_data = optimizer_parameters.get("minimumDaysWithData")
-
-    for etf in etf_list:
-        if len(etf.get_historical_data()) >= minimum_days_with_data:
-            etfs_with_data.append(etf)
-
-    print("Filtered ETFs that don't have enough data: {} ETFs left".format(len(etfs_with_data)))
-    return etfs_with_data
-
-
 def filter_etfs_using_filters(etf_list, etf_filters):
-    etfs = []
-
+    minimum_days_with_data = etf_filters.get("minimumDaysWithData")
+    if minimum_days_with_data is None:
+        minimum_days_with_data = MINIMUM_DAYS_WITH_DATA
     domicile_country = etf_filters.get("domicileCountry", None)
     replication_method = etf_filters.get("replicationMethod", None)
     distribution_policy = etf_filters.get("distributionPolicy", None)
 
+    etfs_with_data = []
     for etf in etf_list:
+        if len(etf.get_historical_data()) >= minimum_days_with_data:
+            etfs_with_data.append(etf)
+    print("Filtered ETFs that don't have enough data: {} ETFs left".format(len(etfs_with_data)))
+
+    etfs_with_filters = []
+    for etf in etfs_with_data:
 
         if domicile_country is not None and domicile_country != etf.get_domicile_country():
             continue
 
-        if replication_method is not None  and replication_method != etf.get_replication_method():
+        if replication_method is not None and replication_method != etf.get_replication_method():
             continue
 
-        if distribution_policy is not None  and distribution_policy != etf.get_distribution_policy():
+        if distribution_policy is not None and distribution_policy != etf.get_distribution_policy():
             continue
 
-        etfs.append(etf)
+        etfs_with_filters.append(etf)
+    print("Filtered ETFs by the parameters provided: {} ETFs left".format(len(etfs_with_filters)))
 
-    print("Filtered ETFs by the parameters provided: {} ETFs left".format(len(etfs)))
-    return etfs
+    return etfs_with_filters
 
 
 def call_optimizer(ef, optimizer_parameters):
@@ -136,7 +131,7 @@ def call_optimizer(ef, optimizer_parameters):
         ef.efficient_return(target_return=target_return)
 
     else:
-        raise Exception("No optimizer was provided. Provide one of: {}".format(OPTIMIZERS))
+        raise Exception("The optimizer provided isn't valid. Provide one of: {}".format(OPTIMIZERS))
 
 
 def get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filters):

@@ -1,11 +1,17 @@
 Questions:
 Fix and understand "covariance matrix is non positive semidefinite" warning (Example: "IE00B99FL386", "LU2090062865", "IE00BFWFPY67", "IE00B7MXFZ59", "LU1291109616", "LU0659579063", "DE000A0D8Q23")
 Filter by currency? Some ETFs use a different currency in different exchanges
-Shorting leads to near zero volatility and therefore near infinite sharpe ratio
 Running the optimization for more than ~400 ETFs can take really long (minutes). Will be a problem.
+Isn't the expense ratio already reflected in the price of the ETF?
 
 TO DO:
-Create simple UI to allow users to interact with the optimizer
+Add loading icon
+Show time elapsed
+Show errors
+Show portfolio, sharpe ratio, volatility, etc..
+Show plots
+Add download button for portfolio
+Check for plotting errors and don't show plots if there are errors
 Improve README
 Deploy application in GCP
 Implement system to perform back-testing (optimize portfolio based on last 3 years of data, and then reoptimize every 3 months, check results)
@@ -24,10 +30,8 @@ Create pie chart of asset distribution
 Future:
 Figure out why plots don't work for some filters
 Look at other covariance matrix algorithms - Ledoit Wolf
-Show how many ETFs there are for each filter
 Add constraints: maximum weight for single asset and maximum number of assets
 Check L2 regularization (check if it changes the number of ETFs in the portfolio)
 Use etfDB in the future (or get the full list of ETFs from justETF)
 Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
-Improve exception handling for server
 Add regime switching optimization
