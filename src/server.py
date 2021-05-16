@@ -31,7 +31,7 @@ def get_etfs_matching_filters():
         body = flask.request.json
         etf_filters = body.get("etfFilters", {})
         filtered_etfs = optimizer.filter_etfs_using_filters(full_etf_list, etf_filters)
-        return {"etfsMatchingFilters": len(filtered_etfs)}
+        return {"etfsMatchingFilters": len(filtered_etfs), "totalETFs": len(full_etf_list)}
     except Exception as e:
         return {"error": str(e)}, 400
 

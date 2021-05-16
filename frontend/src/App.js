@@ -10,28 +10,18 @@ function App() {
                 variant="outlined"
                 style={{
                     backgroundColor: "darkgray",
-                    margin: "25px",
+                    margin: "10px",
                 }}
             >
-                <Typography variant="h4" component="h2" gutterBottom style={{ margin: "15px" }}>
+                <Typography variant="h6" component="h2" style={{ margin: "5px" }}>
                     ETF Optimizer
                 </Typography>
-                <Typography variant="h6" component="h2" style={{ marginLeft: "15px" }}>
-                    Optimize an ETF portfolio by defining your own filters. Using ETFs from justETF and historical data from Refinitiv
+                <Typography variant="subtitle1" component="h2" style={{ marginLeft: "5px" }}>
+                    Optimize an ETF portfolio by defining your own filters. Using ETF data from justETF and historical data from Refinitiv
                     Eikon.
                 </Typography>
             </Paper>
-            <Paper
-                elevation={10}
-                variant="outlined"
-                style={{
-                    backgroundColor: "darkgray",
-                    margin: "100px",
-                    marginTop: "0px",
-                }}
-            >
-                <Search />
-            </Paper>
+            <Search />
         </div>
     );
 }

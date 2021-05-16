@@ -143,12 +143,14 @@ def get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filter
     sharpe_pwt = ef.clean_weights(cutoff=asset_cutoff, rounding=asset_rounding)
     performance = ef.portfolio_performance(risk_free_rate=risk_free_rate)
 
-    portfolio = {}
+    portfolio = []
     total = 0
-    for key, value in sharpe_pwt.items():
-        if value != 0:
-            portfolio[key] = value
-            total += value
+    portfolio_as_dict = dict(sharpe_pwt.items())
+    for etf in sorted(portfolio_as_dict, key=portfolio_as_dict.get, reverse=True):
+        weight = portfolio_as_dict[etf]
+        if weight != 0:
+            portfolio.append({"ETF": etf, "weight": weight})
+            total += weight
 
     result = {
         "expectedReturn": performance[0],
