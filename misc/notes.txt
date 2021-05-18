@@ -2,11 +2,11 @@ Questions:
 Isn't the expense ratio already reflected in the price of the ETF?
 Filter by currency? Some ETFs use a different currency in different exchanges
 Running the optimization for more than ~400 ETFs can take really long (minutes). Will be a problem.
+Should it show an asset distribution plot?
 
 TO DO:
-Show plot of efficient frontier
-Show pie chart of asset distribution
-Allow user to download portfolio and plots
+Let user set initial value and give number of shares
+Allow user to download portfolio and plot
 Dockerize UI https://medium.com/@adostes/using-environment-variables-in-a-react-application-ac3b6c307373
 Deploy application in GCP
 Implement system to perform back-testing (optimize portfolio based on last 3 years of data, and then reoptimize every 3 months, plot results and compare with expected results)

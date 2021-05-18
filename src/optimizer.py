@@ -1,7 +1,10 @@
 import pandas
 import matplotlib.pyplot as plt
-from pypfopt import expected_returns, risk_models, plotting, CLA
+from matplotlib.figure import Figure
+from pypfopt import expected_returns, risk_models, plotting
 from pypfopt.efficient_frontier import EfficientFrontier
+import base64
+import io
 
 from timeit import default_timer
 
@@ -43,20 +46,16 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     # solver_options={"max_iter": MAX_ITERATIONS}
     ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"solver": "ECOS"}, verbose=True)
 
-    plot = True
     fig, ax = plt.subplots()
     try:
         plotting.plot_efficient_frontier(ef, ax=ax, points=10, show_assets=True)
     except Exception as e:
-        plot = False
         print("Error occurred plotting {}".format(str(e)))
 
     call_optimizer(ef, optimizer_parameters)
 
     portfolio = get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filters)
-
-    if plot:
-        plot_ef(portfolio, ax)
+    add_plots_to_portfolio(portfolio, ax, fig)
 
     end = default_timer()
     print("Time to find max sharpe {}".format(end - start))
@@ -174,12 +173,38 @@ def get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filter
     return result
 
 
-def plot_ef(portfolio, ax):
+def add_plots_to_portfolio(portfolio, ax, fig):
     ax.scatter(portfolio["annualVolatility"], portfolio["expectedReturn"], marker="*", s=100, c="r", label="Optimized Portfolio")
     ax.set_title("Efficient Frontier")
     ax.legend()
-    plt.tight_layout()
-    plt.savefig("plots/efficientFrontier")
+    fig.tight_layout()
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png")
+    buf.seek(0)
+    portfolio["efficientFrontierImage"] = base64.b64encode(buf.getbuffer()).decode("ascii")
+    buf.close()
+
+    fig = Figure()
+    ax = fig.subplots()
+    ax.plot([1, 2])
+
+    cmap = plt.cm.get_cmap("hsv", portfolio["portfolioSize"])
+    colors = []
+    weights = []
+    labels = []
+    for i, etf in enumerate(portfolio["portfolio"]):
+        colors.append(cmap(i))
+        weights.append(etf["weight"])
+        labels.append(etf["isin"])
+
+    ax.pie(weights, labels=labels, autopct='%1.1f%%', colors=colors)
+    ax.axis('equal')
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png")
+    buf.seek(0)
+    portfolio["assetDistributionImage"] = base64.b64encode(buf.getbuffer()).decode("ascii")
+    buf.close()
 
 
 def remove_ter_from_returns(etf_list, returns):

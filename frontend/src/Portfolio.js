@@ -48,7 +48,7 @@ class Portfolio extends React.Component {
                 <Typography variant="subtitle1" component="h2" style={{ float: "right", margin: "15px" }}>
                     {"Time elapsed: " + secondsElapsed + "s"}
                 </Typography>
-                <Typography variant="h6" component="h2" style={{ margin: "15px", fontWeight: "bold" }}>
+                <Typography variant="h5" component="h2" style={{ margin: "15px", fontWeight: "bold" }}>
                     Optimized Portfolio
                 </Typography>
 
@@ -63,16 +63,27 @@ class Portfolio extends React.Component {
                     </div>
                 ) : (
                     <React.Fragment>
-                        <Typography variant="body2" component="h2" style={{ margin: "5px" }}>
+                        <img
+                            style={{ float: "right", maxWidth: "40%", margin: "10px" }}
+                            src={`data:image/png;base64,${portfolio.efficientFrontierImage}`}
+                            alt="Efficient Frontier Plot"
+                        />
+                        <Typography variant="body1" component="h2" style={{ margin: "15px", marginTop: "75px" }}>
                             {"Sharpe ratio: " + portfolio.sharpeRatio.toFixed(2)}
                         </Typography>
-                        <Typography variant="body2" component="h2" style={{ margin: "5px" }}>
+                        <Typography variant="body1" component="h2" style={{ margin: "15px" }}>
                             {"Expected return: " + (portfolio.expectedReturn * 100).toFixed(2) + "%"}
                         </Typography>
-                        <Typography variant="body2" component="h2" style={{ margin: "5px" }}>
+                        <Typography variant="body1" component="h2" style={{ margin: "15px" }}>
                             {"Annual Volatility: " + (portfolio.annualVolatility * 100).toFixed(2) + "%"}
                         </Typography>
-                        <Typography variant="h6" component="h2" style={{ marginLeft: "5px", marginTop: "25px" }}>
+                        <Typography variant="body1" component="h2" style={{ margin: "15px" }}>
+                            {"ETFs matching filters: " + portfolio.matchingFilters}
+                        </Typography>
+                        <Typography variant="body1" component="h2" style={{ margin: "15px" }}>
+                            {"Total weight: " + (portfolio.total * 100).toFixed(2) + "%"}
+                        </Typography>
+                        <Typography variant="h6" component="h2" style={{ marginLeft: "5px", marginTop: "125px" }}>
                             {"Portfolio: (" + portfolio.portfolioSize + " assets)"}
                         </Typography>
                         <Table size="small" aria-label="a dense table">
@@ -103,6 +114,12 @@ class Portfolio extends React.Component {
                                 ))}
                             </TableBody>
                         </Table>
+                        {/*<img
+                            style={{ maxWidth: "45%", margin: "10px" }}
+                            src={`data:image/png;base64,${portfolio.assetDistributionImage}`}
+                            alt="Asset Distribution Plot"
+                        />*/}
+
                         <div style={{ display: "flex", justifyContent: "flex-end" }}>
                             <Button
                                 variant="contained"
