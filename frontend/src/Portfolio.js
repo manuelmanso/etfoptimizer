@@ -75,21 +75,29 @@ class Portfolio extends React.Component {
                         <Typography variant="h6" component="h2" style={{ marginLeft: "5px", marginTop: "25px" }}>
                             {"Portfolio: (" + portfolio.portfolioSize + " assets)"}
                         </Typography>
-                        <Table size="small" dense aria-label="a dense table">
+                        <Table size="small" aria-label="a dense table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>ETF</TableCell>
-                                    <TableCell align="left">Weight</TableCell>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell>ISIN</TableCell>
+                                    <TableCell>Weight</TableCell>
+                                    <TableCell>Shares</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {portfolio.portfolio.map((etf) => (
-                                    <TableRow key={etf.name}>
+                                    <TableRow key={etf.isin}>
                                         <TableCell component="th" scope="row">
-                                            {etf.ETF}
+                                            {etf.name}
                                         </TableCell>
-                                        <TableCell align="left">
+                                        <TableCell component="th" scope="row">
+                                            {etf.isin}
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
                                             {(etf.weight * 100).toFixed(assetRounding >= 2 ? assetRounding - 2 : 0) + "%"}
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {etf.shares}
                                         </TableCell>
                                     </TableRow>
                                 ))}

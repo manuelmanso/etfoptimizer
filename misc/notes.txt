@@ -1,29 +1,23 @@
 Questions:
-Fix and understand "covariance matrix is non positive semidefinite" warning (Example: "IE00B99FL386", "LU2090062865", "IE00BFWFPY67", "IE00B7MXFZ59", "LU1291109616", "LU0659579063", "DE000A0D8Q23")
+Isn't the expense ratio already reflected in the price of the ETF?
 Filter by currency? Some ETFs use a different currency in different exchanges
 Running the optimization for more than ~400 ETFs can take really long (minutes). Will be a problem.
-Isn't the expense ratio already reflected in the price of the ETF?
 
 TO DO:
-Show plots
-Add download button for portfolio
-Check for plotting errors and don't show plots if there are errors
+Show plot of efficient frontier
+Show pie chart of asset distribution
+Allow user to download portfolio and plots
 Dockerize UI https://medium.com/@adostes/using-environment-variables-in-a-react-application-ac3b6c307373
 Deploy application in GCP
-Implement system to perform back-testing (optimize portfolio based on last 3 years of data, and then reoptimize every 3 months, check results)
+Implement system to perform back-testing (optimize portfolio based on last 3 years of data, and then reoptimize every 3 months, plot results and compare with expected results)
 
 
 Portfolio filter:
 Filter by: currency, listings, region, country, sector, equity class
 Maybe need to scrape justETF to get more information(listings)
 
-Display results:
-Show ETFs by name and ISIN
-Select initial value and display how many shares to buy of each
-Create plot of efficient frontier
-Create pie chart of asset distribution
-
 Future:
+Add way for user to set ETFs available at his broker
 Improve README
 Figure out why plots don't work for some filters
 Look at other covariance matrix algorithms - Ledoit Wolf
@@ -32,3 +26,7 @@ Check L2 regularization (check if it changes the number of ETFs in the portfolio
 Use etfDB in the future (or get the full list of ETFs from justETF)
 Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
 Add regime switching optimization
+
+
+Unsolved questions:
+Fix and understand "covariance matrix is non positive semidefinite" warning (Example: "IE00B99FL386", "LU2090062865", "IE00BFWFPY67", "IE00B7MXFZ59", "LU1291109616", "LU0659579063", "DE000A0D8Q23")

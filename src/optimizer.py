@@ -43,13 +43,20 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     # solver_options={"max_iter": MAX_ITERATIONS}
     ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"solver": "ECOS"}, verbose=True)
 
+    plot = True
     fig, ax = plt.subplots()
-    plotting.plot_efficient_frontier(ef, ax=ax, points=10, show_assets=True)
+    try:
+        plotting.plot_efficient_frontier(ef, ax=ax, points=10, show_assets=True)
+    except Exception as e:
+        plot = False
+        print("Error occurred plotting {}".format(str(e)))
 
     call_optimizer(ef, optimizer_parameters)
 
     portfolio = get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filters)
-    plot_ef(portfolio, ax)
+
+    if plot:
+        plot_ef(portfolio, ax)
 
     end = default_timer()
     print("Time to find max sharpe {}".format(end - start))
@@ -148,8 +155,10 @@ def get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filter
     portfolio_as_dict = dict(sharpe_pwt.items())
     for etf in sorted(portfolio_as_dict, key=portfolio_as_dict.get, reverse=True):
         weight = portfolio_as_dict[etf]
+        name = etf.split(" | ")[0]
+        isin = etf.split(" | ")[1]
         if weight != 0:
-            portfolio.append({"ETF": etf, "weight": weight})
+            portfolio.append({"name": name, "isin": isin, "shares": 0, "weight": weight})
             total += weight
 
     result = {
@@ -207,7 +216,7 @@ def get_prices_data_frame_full_history(etf_list):
             nans = [float("nan")] * (max_len - len(prices))
             prices = nans + prices
 
-        identifier = etf.get_name() + " - " + etf.get_isin()
+        identifier = etf.get_name() + " | " + etf.get_isin()
         prices_by_date[identifier] = prices
 
     return pandas.DataFrame(prices_by_date)
