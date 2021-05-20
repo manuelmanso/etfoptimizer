@@ -1,15 +1,16 @@
 import pandas
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from pypfopt import expected_returns, risk_models, plotting
+from pypfopt import expected_returns, risk_models, plotting, discrete_allocation
 from pypfopt.efficient_frontier import EfficientFrontier
+import math
 import base64
 import io
-
 from timeit import default_timer
 
 OPTIMIZERS = ["MaxSharpe", "MinimumVolatility", "EfficientRisk", "EfficientReturn"]
 
+INITIAL_VALUE = 10000
 OPTIMIZER = "MaxSharpe"
 RISK_FREE_RATE = 0.02
 REMOVE_TER = True
@@ -43,7 +44,6 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     cov = risk_models.sample_cov(prices)
 
     weight_bounds = (-1, 1) if shorting else (0, 1)
-    # solver_options={"max_iter": MAX_ITERATIONS}
     ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"solver": "ECOS"}, verbose=True)
 
     fig, ax = plt.subplots()
@@ -54,11 +54,14 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
 
     call_optimizer(ef, optimizer_parameters)
 
-    portfolio = get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filters)
+    portfolio = get_portfolio_and_performance(ef, prices, optimizer_parameters)
     add_plots_to_portfolio(portfolio, ax, fig)
 
     end = default_timer()
     print("Time to find max sharpe {}".format(end - start))
+
+    portfolio["ETFsMatchingFilters"] = etfs_matching_filters
+    portfolio["ETFsUsedForOptimization"] = len(etf_list)
 
     return portfolio
 
@@ -140,8 +143,9 @@ def call_optimizer(ef, optimizer_parameters):
         raise Exception("The optimizer provided isn't valid. Provide one of: {}".format(OPTIMIZERS))
 
 
-def get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filters):
+def get_portfolio_and_performance(ef, prices, optimizer_parameters):
 
+    initial_value = optimizer_parameters.get("initialValue", INITIAL_VALUE)
     risk_free_rate = optimizer_parameters.get("riskFreeRate", RISK_FREE_RATE)
     asset_cutoff = optimizer_parameters.get("assetCutoff", ASSET_WEIGHT_CUTOFF)
     asset_rounding = optimizer_parameters.get("assetRounding", ASSET_WEIGHT_ROUNDING)
@@ -149,16 +153,26 @@ def get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filter
     sharpe_pwt = ef.clean_weights(cutoff=asset_cutoff, rounding=asset_rounding)
     performance = ef.portfolio_performance(risk_free_rate=risk_free_rate)
 
+    latest_prices = discrete_allocation.get_latest_prices(prices)
+    allocation = discrete_allocation.DiscreteAllocation(sharpe_pwt, latest_prices, initial_value)
+    alloc, leftover_funds = allocation.lp_portfolio()
+
     portfolio = []
-    total = 0
+    total_weight = 0
     portfolio_as_dict = dict(sharpe_pwt.items())
     for etf in sorted(portfolio_as_dict, key=portfolio_as_dict.get, reverse=True):
         weight = portfolio_as_dict[etf]
-        name = etf.split(" | ")[0]
-        isin = etf.split(" | ")[1]
         if weight != 0:
-            portfolio.append({"name": name, "isin": isin, "shares": 0, "weight": weight})
-            total += weight
+            name = etf.split(" | ")[0]
+            isin = etf.split(" | ")[1]
+
+            latest_price = latest_prices[etf]
+            shares = int(alloc.get(etf, 0))
+            value = shares * latest_price
+
+            portfolio.append({"name": name, "isin": isin, "shares": shares, "price": latest_price, "value": value,
+                              "weight": weight})
+            total_weight += weight
 
     result = {
         "expectedReturn": performance[0],
@@ -166,8 +180,10 @@ def get_portfolio_and_performance(ef, optimizer_parameters, etfs_matching_filter
         "sharpeRatio": performance[2],
         "portfolioSize": len(portfolio),
         "portfolio": portfolio,
-        "total": total,
-        "matchingFilters": etfs_matching_filters
+        "totalWeight": total_weight,
+        "totalValue": initial_value - leftover_funds,
+        "initialValue": initial_value,
+        "leftoverFunds": leftover_funds
     }
 
     return result
@@ -228,6 +244,7 @@ def get_prices_data_frame_full_history(etf_list):
 
     max_len = get_max_len_historical_data(etf_list)
 
+    total = 0
     for etf in etf_list:
         prices = []
         for datePrice in etf.get_historical_data():

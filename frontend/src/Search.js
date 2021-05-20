@@ -21,6 +21,7 @@ class Search extends React.Component {
     }
 
     initialOptimizerParameters = {
+        initialValue: 10000,
         optimizer: "MaxSharpe",
         targetVolatility: 0.1,
         targetReturn: 0.1,
@@ -34,7 +35,7 @@ class Search extends React.Component {
     };
 
     initialETFFilters = {
-        minimumDaysWithData: 4000,
+        minimumDaysWithData: 2000,
     };
 
     state = {
@@ -77,6 +78,16 @@ class Search extends React.Component {
                             Optimizer Parameters
                         </Typography>
                         <div className="optimizerParameters" style={{ flexDirection: "row", margin: "5px" }}>
+                            <TextField
+                                id="initialValue"
+                                label="Initial Value (€)"
+                                type="text"
+                                value={optimizerParameters.initialValue != null ? optimizerParameters.initialValue.toLocaleString() : ""}
+                                style={{ margin: "5px", width: "150px" }}
+                                onChange={(e) =>
+                                    this.handleChangeOptimizerParameter(parseInt(e.target.value.replace(/[.,]/g, "")), "initialValue")
+                                }
+                            />
                             <FormControl style={{ margin: "5px" }}>
                                 <InputLabel id="optimizer">Optimizer</InputLabel>
                                 <Select

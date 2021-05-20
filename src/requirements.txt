@@ -5,3 +5,4 @@ pymongo
 eikon
 requests
 PyPortfolioOpt
+cvxopt

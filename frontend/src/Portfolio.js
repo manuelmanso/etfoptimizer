@@ -78,13 +78,19 @@ class Portfolio extends React.Component {
                             {"Annual Volatility: " + (portfolio.annualVolatility * 100).toFixed(2) + "%"}
                         </Typography>
                         <Typography variant="body1" component="h2" style={{ margin: "15px" }}>
-                            {"ETFs matching filters: " + portfolio.matchingFilters}
+                            {"ETFs matching filters: " + portfolio.ETFsMatchingFilters}
                         </Typography>
                         <Typography variant="body1" component="h2" style={{ margin: "15px" }}>
-                            {"Total weight: " + (portfolio.total * 100).toFixed(2) + "%"}
+                            {"ETFs used for optimization: " + portfolio.ETFsUsedForOptimization}
                         </Typography>
                         <Typography variant="h6" component="h2" style={{ marginLeft: "5px", marginTop: "125px" }}>
                             {"Portfolio: (" + portfolio.portfolioSize + " assets)"}
+                        </Typography>
+                        <Typography variant="body1" component="h2" style={{ margin: "15px" }}>
+                            {"Initial Value: " + portfolio.initialValue.toLocaleString() + "€"}
+                        </Typography>
+                        <Typography variant="body1" component="h2" style={{ margin: "15px" }}>
+                            {"Leftover Funds: " + portfolio.leftoverFunds.toLocaleString() + "€"}
                         </Typography>
                         <Table size="small" aria-label="a dense table">
                             <TableHead>
@@ -93,6 +99,8 @@ class Portfolio extends React.Component {
                                     <TableCell>ISIN</TableCell>
                                     <TableCell>Weight</TableCell>
                                     <TableCell>Shares</TableCell>
+                                    <TableCell>Price</TableCell>
+                                    <TableCell>Value (€)</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -110,8 +118,28 @@ class Portfolio extends React.Component {
                                         <TableCell component="th" scope="row">
                                             {etf.shares}
                                         </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {etf.price != null ? etf.price.toFixed(2) : ""}
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {etf.value.toLocaleString()}
+                                        </TableCell>
                                     </TableRow>
                                 ))}
+                                <TableRow key={"123123sadas"}>
+                                    <TableCell component="th" scope="row" style={{ fontWeight: "bold" }}>
+                                        Portfolio
+                                    </TableCell>
+                                    <TableCell component="th" scope="row"></TableCell>
+                                    <TableCell component="th" scope="row" style={{ fontWeight: "bold" }}>
+                                        {(portfolio.totalWeight * 100).toFixed(2) + "%"}
+                                    </TableCell>
+                                    <TableCell component="th" scope="row"></TableCell>
+                                    <TableCell component="th" scope="row"></TableCell>
+                                    <TableCell component="th" scope="row" style={{ fontWeight: "bold" }}>
+                                        {portfolio.totalValue.toLocaleString()}
+                                    </TableCell>
+                                </TableRow>
                             </TableBody>
                         </Table>
                         {/*<img
