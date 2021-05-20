@@ -164,7 +164,26 @@ class Portfolio extends React.Component {
         );
     }
 
-    downloadPortfolio = () => {};
+    downloadPortfolio = () => {
+        const { portfolio } = this.props;
+
+        let portfolioToDownload = { ...portfolio };
+        let efficientFrontierImage = portfolio["efficientFrontierImage"];
+        delete portfolioToDownload["efficientFrontierImage"];
+        //let assetDistributionImage = portfolio["assetDistributionImage"];
+        delete portfolioToDownload["assetDistributionImage"];
+
+        let json = JSON.stringify(portfolioToDownload, undefined, 4);
+
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([json], { type: "text/json" }));
+        a.download = "portfolio.json";
+        a.click();
+
+        a.href = `data:image/png;base64,${efficientFrontierImage}`;
+        a.download = "EfficientFrontier.png";
+        a.click();
+    };
 
     tick = () => {
         if (this.props.loading) {

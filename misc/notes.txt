@@ -2,12 +2,13 @@ Questions:
 Isn't the expense ratio already reflected in the price of the ETF?
 Filter by currency? Some ETFs use a different currency in different exchanges
 Running the optimization for more than ~400 ETFs can take really long (minutes). Will be a problem.
+Efficient frontier doesn't work for some filters. Throws "target_return must be a positive integer" error
 Should it show an asset distribution plot?
 Weight doesn't add up to 100%, strange but doesn't actually mater I think
-For high initial values (>100k), leftover funds are really high. Can't seem to fix it.
+For high initial values (>100k), leftover funds are really high
+Should the download button download a zip or not really important?
 
 TO DO:
-Allow user to download portfolio and plot
 Make plot bigger and don't float it
 Dockerize UI https://medium.com/@adostes/using-environment-variables-in-a-react-application-ac3b6c307373
 Prices don't seem to be correct: figure out what's going on (last price doesn't match the data) (probably leading to Nan values when allocating shares)
