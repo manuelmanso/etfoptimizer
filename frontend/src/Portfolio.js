@@ -64,7 +64,7 @@ class Portfolio extends React.Component {
                 ) : (
                     <React.Fragment>
                         <img
-                            style={{ float: "right", maxWidth: "40%", margin: "10px" }}
+                            style={{ float: "right", maxWidth: "50%", margin: "10px" }}
                             src={`data:image/png;base64,${portfolio.efficientFrontierImage}`}
                             alt="Efficient Frontier Plot"
                         />

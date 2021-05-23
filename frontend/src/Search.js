@@ -35,7 +35,7 @@ class Search extends React.Component {
     };
 
     initialETFFilters = {
-        minimumDaysWithData: 2000,
+        minimumDaysWithData: 1000,
     };
 
     state = {
