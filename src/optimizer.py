@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from pypfopt import expected_returns, risk_models, plotting, discrete_allocation
 from pypfopt.efficient_frontier import EfficientFrontier
-import math
 import base64
 import io
 from timeit import default_timer

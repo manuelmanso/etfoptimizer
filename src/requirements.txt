@@ -6,3 +6,4 @@ eikon
 requests
 PyPortfolioOpt
 cvxopt
+matplotlib

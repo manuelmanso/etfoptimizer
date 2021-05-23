@@ -13,7 +13,7 @@ import Typography from "@material-ui/core/Typography";
 import Portfolio from "./Portfolio";
 
 class Search extends React.Component {
-    REACT_APP_URL = "http://localhost:4800/";
+    BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
     componentDidMount() {
         this.getParameters();
@@ -96,6 +96,7 @@ class Search extends React.Component {
                                     value={
                                         parameters.optimizers && optimizerParameters.optimizer != null ? optimizerParameters.optimizer : ""
                                     }
+                                    style={{ width: "115px" }}
                                     onChange={(e) => this.handleChangeOptimizerParameter(e.target.value, "optimizer")}
                                 >
                                     {parameters.optimizers &&
@@ -337,7 +338,7 @@ class Search extends React.Component {
     };
 
     getParameters = () => {
-        fetch(this.REACT_APP_URL + "parameters")
+        fetch(this.BACKEND_URL + "parameters")
             .then(async (response) => {
                 const data = await response.json();
                 // check for error response
@@ -356,7 +357,7 @@ class Search extends React.Component {
 
     getEtfsMatchingFilters = () => {
         const { etfFilters } = this.state;
-        fetch(this.REACT_APP_URL + "etfsMatchingFilters", {
+        fetch(this.BACKEND_URL + "etfsMatchingFilters", {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
@@ -387,7 +388,7 @@ class Search extends React.Component {
 
         this.setState({ optimizedResponse: null, loading: true, error: null });
 
-        fetch(this.REACT_APP_URL + "optimize", {
+        fetch(this.BACKEND_URL + "optimize", {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
