@@ -8,13 +8,14 @@ Should it show an asset distribution plot?
 Weight doesn't add up to 100%, strange but doesn't actually mater I think
 For high initial values (>100k), leftover funds are really high
 Should the download button download a zip or not really important?
+Where to deploy? LRZ has a service that we could maybe use
 
 TO DO:
-Deploy application in GCP
 Prices don't seem to be correct: figure out what's going on (last price doesn't match the data) (probably leading to Nan values when allocating shares)
 Implement system to perform back-testing (optimize portfolio based on last 3 years of data, and then reoptimize every 3 months, plot results and compare with expected results)
 
 Future:
+Fix problems with deploying and simplify process. Automate deployment (how to configure .env dynammically)
 Check if ETF list size can be reduced in backend so it doesn't use as much memory (or maybe write etfData to file and read it from there)
 Why is the leftover value so large for large initial values?
 Maybe need to scrape justETF to get more information(listings)
