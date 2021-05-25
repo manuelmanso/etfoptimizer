@@ -1,10 +1,10 @@
 Questions:
 Filter by currency? Some ETFs use a different currency in different exchanges
 Other filters: how important? (currency, listings, region, sector, equity class)
+Param range goes from [min_return or 0 to max_return]. A portfolio could never ever a higher return that the maximal return of its asset with the highest return right?
 Where to deploy? LRZ has a service that we could maybe use
 
 TO DO:
-Add download button for png and download for portfolio
 Add way for user to set ETFs available at his broker
 Order ETFs by sharpe ratio
 Prices don't seem to be correct: figure out what's going on (last price doesn't match the data) (probably leading to Nan values when allocating shares)
@@ -22,9 +22,9 @@ Plot results and compare with expected results
 Future:
 Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
 Fix problems with deploying and simplify process. Automate deployment (how to configure .env dynammically)
+Setup way for pricing data to be updated by running a script (needs mongoDB location, eikon app key and justetfurl as inputs)
 Check if ETF list size can be reduced in backend so it doesn't use as much memory (or maybe write etfData to file and read it from there)
 Why is the leftover value so large for large initial values?
-Figure out why one asset is always at the end of the efficient frontier (could be bad data) (print assets expected return and volatility and check if matches)
 Look at other covariance matrix algorithms - Ledoit Wolf
 Add constraints: maximum weight for single asset and maximum number of assets
 Check L2 regularization (check if it changes the number of ETFs in the portfolio)

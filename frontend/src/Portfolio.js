@@ -149,13 +149,16 @@ class Portfolio extends React.Component {
                         />*/}
 
                         <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                            <Button variant="contained" style={{ margin: "15px" }} endIcon={<DownloadIcon />} onClick={this.downloadPlot}>
+                                Download Plot
+                            </Button>
                             <Button
                                 variant="contained"
                                 style={{ margin: "15px" }}
                                 endIcon={<DownloadIcon />}
                                 onClick={this.downloadPortfolio}
                             >
-                                Download
+                                Download Portfolio
                             </Button>
                         </div>
                     </React.Fragment>
@@ -164,24 +167,25 @@ class Portfolio extends React.Component {
         );
     }
 
+    downloadPlot = () => {
+        const { portfolio } = this.props;
+
+        const a = document.createElement("a");
+        a.href = `data:image/png;base64,${portfolio["efficientFrontierImage"]}`;
+        a.download = "EfficientFrontier.png";
+        a.click();
+    };
+
     downloadPortfolio = () => {
         const { portfolio } = this.props;
 
         let portfolioToDownload = { ...portfolio };
-        let efficientFrontierImage = portfolio["efficientFrontierImage"];
-        delete portfolioToDownload["efficientFrontierImage"];
-        //let assetDistributionImage = portfolio["assetDistributionImage"];
-        delete portfolioToDownload["assetDistributionImage"];
 
         let json = JSON.stringify(portfolioToDownload, undefined, 4);
 
         const a = document.createElement("a");
         a.href = URL.createObjectURL(new Blob([json], { type: "text/json" }));
         a.download = "portfolio.json";
-        a.click();
-
-        a.href = `data:image/png;base64,${efficientFrontierImage}`;
-        a.download = "EfficientFrontier.png";
         a.click();
     };
 
