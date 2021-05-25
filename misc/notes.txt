@@ -12,22 +12,29 @@ Where to deploy? LRZ has a service that we could maybe use
 
 TO DO:
 Prices don't seem to be correct: figure out what's going on (last price doesn't match the data) (probably leading to Nan values when allocating shares)
-Implement system to perform back-testing (optimize portfolio based on last 3 years of data, and then reoptimize every 3 months, plot results and compare with expected results)
+Update pricing data
+Improve README
+
+Back-testing TODO:
+Implement system to perform back-testing
+Optimize portfolio starting on x date, reoptimizing every x days, based on last x days of data
+Check final value
+Compare with expected results
+Plot results and compare with expected results
 
 Future:
+Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
 Fix problems with deploying and simplify process. Automate deployment (how to configure .env dynammically)
 Check if ETF list size can be reduced in backend so it doesn't use as much memory (or maybe write etfData to file and read it from there)
 Why is the leftover value so large for large initial values?
-Maybe need to scrape justETF to get more information(listings)
-Figure out why one asset is always at the end of the efficient frontier (could be bad data)
+Figure out why one asset is always at the end of the efficient frontier (could be bad data) (print assets expected return and volatility and check if matches)
 Add way for user to set ETFs available at his broker
-Improve README
 Figure out why plots don't work for some filters
 Look at other covariance matrix algorithms - Ledoit Wolf
 Add constraints: maximum weight for single asset and maximum number of assets
 Check L2 regularization (check if it changes the number of ETFs in the portfolio)
+Maybe need to scrape justETF to get more information(listings)
 Use etfDB in the future (or get the full list of ETFs from justETF)
-Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
 Add regime switching optimization
 
 

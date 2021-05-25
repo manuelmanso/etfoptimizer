@@ -1,7 +1,7 @@
 version: "3"
 services:
   optimizer:
-    image: optimizer
+    image: manuelmanso/etfoptimizer:optimizer
     ports:
       - ${OPTIMIZER_HOST_PORT}:${OPTIMIZER_CONTAINER_PORT}
     environment:
@@ -14,7 +14,7 @@ services:
       - mongo
 
   frontend:
-    image: frontend
+    image: manuelmanso/etfoptimizer:frontend
     ports:
       - ${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}
     environment:

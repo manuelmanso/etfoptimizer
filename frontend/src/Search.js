@@ -114,7 +114,7 @@ class Search extends React.Component {
                                     type="number"
                                     value={optimizerParameters.targetVolatility != null ? optimizerParameters.targetVolatility : ""}
                                     style={{ margin: "5px", width: "115px" }}
-                                    onChange={(e) => this.handleChangeOptimizerParameter(e.target.value, "targetVolatility")}
+                                    onChange={(e) => this.handleChangeOptimizerParameter(parseFloat(e.target.value), "targetVolatility")}
                                 />
                             )}
                             {optimizerParameters.optimizer === "EfficientReturn" && (
@@ -124,7 +124,7 @@ class Search extends React.Component {
                                     type="number"
                                     value={optimizerParameters.targetReturn != null ? optimizerParameters.targetReturn : ""}
                                     style={{ margin: "5px", width: "100px" }}
-                                    onChange={(e) => this.handleChangeOptimizerParameter(e.target.value, "targetReturn")}
+                                    onChange={(e) => this.handleChangeOptimizerParameter(parseFloat(e.target.value), "targetReturn")}
                                 />
                             )}
                             <TextField
