@@ -1,6 +1,7 @@
 flask
 flask-cors
 pandas
+numpy
 pymongo
 eikon
 requests

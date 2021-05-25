@@ -5,6 +5,7 @@ from pypfopt import expected_returns, risk_models, plotting, discrete_allocation
 from pypfopt.efficient_frontier import EfficientFrontier
 import base64
 import io
+import numpy as np
 from timeit import default_timer
 
 OPTIMIZERS = ["MaxSharpe", "MinimumVolatility", "EfficientRisk", "EfficientReturn"]
@@ -46,10 +47,9 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"solver": "ECOS"}, verbose=True)
 
     fig, ax = plt.subplots()
-    try:
-        plotting.plot_efficient_frontier(ef, ax=ax, points=10, show_assets=True)
-    except Exception as e:
-        print("Error occurred plotting {}".format(str(e)))
+    n_points = 10
+    param_range = get_plotting_param_range(ef, n_points)
+    plotting.plot_efficient_frontier(ef, ax=ax, points=n_points, ef_param_range=param_range, show_assets=True)
 
     call_optimizer(ef, optimizer_parameters)
 
@@ -63,6 +63,15 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     portfolio["ETFsUsedForOptimization"] = len(etf_list)
 
     return portfolio
+
+
+def get_plotting_param_range(ef, points):
+    param_range = plotting._ef_default_returns_range(ef, points=points)
+
+    if param_range[0] < 0:
+        return np.linspace(0, param_range[-1], points)
+
+    return param_range
 
 
 def filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters):
