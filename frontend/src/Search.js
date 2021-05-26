@@ -1,7 +1,10 @@
 import React from "react";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import VisibilityIcon from "@material-ui/icons/Visibility";
 import SendIcon from "@material-ui/icons/Send";
 import ReplayIcon from "@material-ui/icons/Replay";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import Paper from "@material-ui/core/Paper";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -9,6 +12,9 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
 
 import Portfolio from "./Portfolio";
 
@@ -47,6 +53,7 @@ class Search extends React.Component {
         optimizedResponse: null,
         loadingResponse: false,
         error: null,
+        isinListDialogOpen: false,
     };
 
     render() {
@@ -184,6 +191,26 @@ class Search extends React.Component {
                             ETF Filters
                         </Typography>
                         <div className="etfFilters" style={{ flexDirection: "row", margin: "5px" }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                component="label"
+                                style={{ margin: "10px" }}
+                                endIcon={<CloudUploadIcon />}
+                            >
+                                Add Isin List
+                                <input
+                                    accept="application/JSON"
+                                    capture="camcorder"
+                                    id="icon-button-video"
+                                    onChange={this.handleUploadIsinList}
+                                    type="file"
+                                    hidden
+                                />
+                            </Button>
+                            <IconButton color="primary" onClick={this.handleOpenIsinListDialog}>
+                                <VisibilityIcon />
+                            </IconButton>
                             <TextField
                                 id="minimumDaysWithData"
                                 label="Minimum days with data"
@@ -297,9 +324,48 @@ class Search extends React.Component {
                         />
                     </Paper>
                 )}
+
+                <Dialog onClose={this.handleCloseIsinListDialog} open={this.state.isinListDialogOpen}>
+                    <DialogTitle onClose={this.handleCloseIsinListDialog}>ISIN List</DialogTitle>
+                    <DialogContent>
+                        {/*<Typography gutterBottom>{this.state.etfFilters.isinList}</Typography>*/}
+                        {etfFilters.isinList == null || etfFilters.isinList.length === 0 ? (
+                            <Typography gutterBottom>You haven't uploaded a file with any ISINs.</Typography>
+                        ) : (
+                            <pre>{JSON.stringify(etfFilters.isinList, null, 2)}</pre>
+                        )}
+                    </DialogContent>
+                </Dialog>
             </React.Fragment>
         );
     }
+
+    handleUploadIsinList = (event) => {
+        const file = event.target.files[0];
+
+        if (file == null) {
+            return;
+        }
+        const fileReader = new FileReader(file);
+
+        fileReader.readAsText(file);
+
+        fileReader.onload = (e) => {
+            var result = JSON.parse(e.target.result);
+
+            if (result.constructor === Array) {
+                let isinList = [];
+                result.forEach((element) => {
+                    if (typeof element === "string") {
+                        isinList.push(element);
+                    }
+                });
+                this.setState({ etfFilters: { ...this.state.etfFilters, isinList: isinList } }, this.getEtfsMatchingFilters);
+            } else {
+                console.error("The JSON file is not in the right format! It needs to be a JSON list containing the ETF ISINs in a list.");
+            }
+        };
+    };
 
     handleChangeOptimizerParameter = (value, parameterName) => {
         const { optimizerParameters } = this.state;
@@ -381,6 +447,14 @@ class Search extends React.Component {
             .catch((error) => {
                 console.error("There was an error getting the ETFs that match the filters!", error);
             });
+    };
+
+    handleOpenIsinListDialog = () => {
+        this.setState({ isinListDialogOpen: true });
+    };
+
+    handleCloseIsinListDialog = () => {
+        this.setState({ isinListDialogOpen: false });
     };
 
     callOptimizer = () => {

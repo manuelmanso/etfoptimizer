@@ -92,6 +92,7 @@ def filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters):
 
 
 def filter_etfs_using_filters(etf_list, etf_filters):
+    isin_list = etf_filters.get("isinList", None)
     minimum_days_with_data = etf_filters.get("minimumDaysWithData")
     if minimum_days_with_data is None:
         minimum_days_with_data = MINIMUM_DAYS_WITH_DATA
@@ -107,6 +108,9 @@ def filter_etfs_using_filters(etf_list, etf_filters):
 
     etfs_with_filters = []
     for etf in etfs_with_data:
+
+        if isin_list is not None and etf.get_isin() not in isin_list:
+            continue
 
         if domicile_country is not None and domicile_country != etf.get_domicile_country():
             continue
@@ -207,27 +211,6 @@ def add_plots_to_portfolio(portfolio, ax, fig):
     fig.savefig(buf, format="png")
     buf.seek(0)
     portfolio["efficientFrontierImage"] = base64.b64encode(buf.getbuffer()).decode("ascii")
-    buf.close()
-
-    fig = Figure()
-    ax = fig.subplots()
-    ax.plot([1, 2])
-
-    cmap = plt.cm.get_cmap("hsv", portfolio["portfolioSize"])
-    colors = []
-    weights = []
-    labels = []
-    for i, etf in enumerate(portfolio["portfolio"]):
-        colors.append(cmap(i))
-        weights.append(etf["weight"])
-        labels.append(etf["isin"])
-
-    ax.pie(weights, labels=labels, autopct='%1.1f%%', colors=colors)
-    ax.axis('equal')
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png")
-    buf.seek(0)
-    portfolio["assetDistributionImage"] = base64.b64encode(buf.getbuffer()).decode("ascii")
     buf.close()
 
 

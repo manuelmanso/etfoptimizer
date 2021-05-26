@@ -5,7 +5,6 @@ Param range goes from [min_return or 0 to max_return]. A portfolio could never e
 Where to deploy? LRZ has a service that we could maybe use
 
 TO DO:
-Add way for user to set ETFs available at his broker
 Order ETFs by sharpe ratio
 Prices don't seem to be correct: figure out what's going on (last price doesn't match the data) (probably leading to Nan values when allocating shares)
 Update pricing data

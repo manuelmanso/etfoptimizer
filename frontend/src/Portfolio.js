@@ -142,11 +142,6 @@ class Portfolio extends React.Component {
                                 </TableRow>
                             </TableBody>
                         </Table>
-                        {/*<img
-                            style={{ maxWidth: "45%", margin: "10px" }}
-                            src={`data:image/png;base64,${portfolio.assetDistributionImage}`}
-                            alt="Asset Distribution Plot"
-                        />*/}
 
                         <div style={{ display: "flex", justifyContent: "flex-end" }}>
                             <Button variant="contained" style={{ margin: "15px" }} endIcon={<DownloadIcon />} onClick={this.downloadPlot}>
@@ -180,6 +175,7 @@ class Portfolio extends React.Component {
         const { portfolio } = this.props;
 
         let portfolioToDownload = { ...portfolio };
+        delete portfolioToDownload["efficientFrontierImage"];
 
         let json = JSON.stringify(portfolioToDownload, undefined, 4);
 
