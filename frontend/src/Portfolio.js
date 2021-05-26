@@ -97,6 +97,8 @@ class Portfolio extends React.Component {
                                 <TableRow>
                                     <TableCell>Name</TableCell>
                                     <TableCell>ISIN</TableCell>
+                                    <TableCell>Return</TableCell>
+                                    <TableCell>Volatility</TableCell>
                                     <TableCell>Weight</TableCell>
                                     <TableCell>Shares</TableCell>
                                     <TableCell>Price</TableCell>
@@ -111,6 +113,12 @@ class Portfolio extends React.Component {
                                         </TableCell>
                                         <TableCell component="th" scope="row">
                                             {etf.isin}
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {(etf.expectedReturn * 100).toFixed(2) + "%"}
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {(etf.volatility * 100).toFixed(2) + "%"}
                                         </TableCell>
                                         <TableCell component="th" scope="row">
                                             {(etf.weight * 100).toFixed(assetRounding >= 2 ? assetRounding - 2 : 0) + "%"}

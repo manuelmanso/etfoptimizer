@@ -1,8 +1,6 @@
 Questions:
-Filter by currency? Some ETFs use a different currency in different exchanges
-Other filters: how important? (currency, listings, region, sector, equity class)
-Param range goes from [min_return or 0 to max_return]. A portfolio could never ever a higher return that the maximal return of its asset with the highest return right?
-Where to deploy? LRZ has a service that we could maybe use
+Select multiple filters at once?
+Error when there's only one ETF matching filters
 
 TO DO:
 Order ETFs by sharpe ratio
@@ -17,21 +15,28 @@ Check final value
 Compare with expected results
 Plot results and compare with expected results
 
-
-Future:
+ETF data:
 Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
-Fix problems with deploying and simplify process. Automate deployment (how to configure .env dynammically)
 Setup way for pricing data to be updated by running a script (needs mongoDB location, eikon app key and justetfurl as inputs)
-Check if ETF list size can be reduced in backend so it doesn't use as much memory (or maybe write etfData to file and read it from there)
+Maybe need to scrape justETF to get more information(listings)
+Use etfDB in the future (or get the full list of ETFs from justETF)
+
+Deployment:
+Flask production WSGI server for deployment
+Fix problems with deploying and simplify process. Automate deployment (how to configure .env dynammically)
+
+PyPortfolioOpt optimizations:
 Why is the leftover value so large for large initial values?
 Look at other covariance matrix algorithms - Ledoit Wolf
 Add constraints: maximum weight for single asset and maximum number of assets
 Check L2 regularization (check if it changes the number of ETFs in the portfolio)
-Maybe need to scrape justETF to get more information(listings)
-Use etfDB in the future (or get the full list of ETFs from justETF)
+
+Future:
+Check if ETF list size can be reduced in backend so it doesn't use as much memory (or maybe write etfData to file and read it from there)
 Add regime switching optimization
+Other filters: listings, region, sector, equity class
 
 
 Unsolved questions:
-Isn't the expense ratio already reflected in the price of the ETF?
+Where to deploy? LRZ has a service that we could maybe use
 Fix and understand "covariance matrix is non positive semidefinite" warning (Example: "IE00B99FL386", "LU2090062865", "IE00BFWFPY67", "IE00B7MXFZ59", "LU1291109616", "LU0659579063", "DE000A0D8Q23")

@@ -1,6 +1,6 @@
 import pandas
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
+from ETF import get_split_name_and_isin, get_combined_name_and_isin
 from pypfopt import expected_returns, risk_models, plotting, discrete_allocation
 from pypfopt.efficient_frontier import EfficientFrontier
 import base64
@@ -13,7 +13,6 @@ OPTIMIZERS = ["MaxSharpe", "MinimumVolatility", "EfficientRisk", "EfficientRetur
 INITIAL_VALUE = 10000
 OPTIMIZER = "MaxSharpe"
 RISK_FREE_RATE = 0.02
-REMOVE_TER = True
 MINIMUM_DAYS_WITH_DATA = 0
 ASSET_WEIGHT_CUTOFF = 0.01
 ASSET_WEIGHT_ROUNDING = 4
@@ -24,7 +23,6 @@ MAX_ETF_LIST_SIZE = 400
 
 def optimize(etf_list, optimizer_parameters, etf_filters):
 
-    remove_ter = optimizer_parameters.get("removeTER", REMOVE_TER)
     shorting = optimizer_parameters.get("shorting", SHORTING)
     rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays")
     if rolling_window_in_days is None:
@@ -38,10 +36,10 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
 
     returns = expected_returns.mean_historical_return(prices)
 
-    if remove_ter:
-        remove_ter_from_returns(etf_list, returns)
+    remove_ter_from_returns(etf_list, returns)
 
     cov = risk_models.sample_cov(prices)
+    volatility = pandas.Series(np.sqrt(np.diag(cov)), index=cov.index)
 
     weight_bounds = (-1, 1) if shorting else (0, 1)
     ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"solver": "ECOS"}, verbose=True)
@@ -53,8 +51,9 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
 
     call_optimizer(ef, optimizer_parameters)
 
-    portfolio = get_portfolio_and_performance(ef, prices, optimizer_parameters)
-    add_plots_to_portfolio(portfolio, ax, fig)
+    portfolio = get_portfolio_and_performance(ef, prices, optimizer_parameters, returns, volatility)
+    plot_assets_in_portfolio_with_different_color(portfolio, ax, volatility, returns)
+    add_plot_to_portfolio(portfolio, ax, fig)
 
     end = default_timer()
     print("Time to find max sharpe {}".format(end - start))
@@ -99,6 +98,7 @@ def filter_etfs_using_filters(etf_list, etf_filters):
     domicile_country = etf_filters.get("domicileCountry", None)
     replication_method = etf_filters.get("replicationMethod", None)
     distribution_policy = etf_filters.get("distributionPolicy", None)
+    fund_currency = etf_filters.get("fundCurrency", None)
 
     etfs_with_data = []
     for etf in etf_list:
@@ -119,6 +119,9 @@ def filter_etfs_using_filters(etf_list, etf_filters):
             continue
 
         if distribution_policy is not None and distribution_policy != etf.get_distribution_policy():
+            continue
+
+        if fund_currency is not None and fund_currency != etf.get_fund_currency():
             continue
 
         etfs_with_filters.append(etf)
@@ -155,7 +158,7 @@ def call_optimizer(ef, optimizer_parameters):
         raise Exception("The optimizer provided isn't valid. Provide one of: {}".format(OPTIMIZERS))
 
 
-def get_portfolio_and_performance(ef, prices, optimizer_parameters):
+def get_portfolio_and_performance(ef, prices, optimizer_parameters, returns, variance):
 
     initial_value = optimizer_parameters.get("initialValue", INITIAL_VALUE)
     risk_free_rate = optimizer_parameters.get("riskFreeRate", RISK_FREE_RATE)
@@ -175,15 +178,17 @@ def get_portfolio_and_performance(ef, prices, optimizer_parameters):
     for etf in sorted(portfolio_as_dict, key=portfolio_as_dict.get, reverse=True):
         weight = portfolio_as_dict[etf]
         if weight != 0:
-            name = etf.split(" | ")[0]
-            isin = etf.split(" | ")[1]
+            name, isin = get_split_name_and_isin(etf)
 
             latest_price = latest_prices[etf]
             shares = int(alloc.get(etf, 0))
             value = shares * latest_price
 
+            expected_return = returns[etf]
+            volatility = variance[etf]
+
             portfolio.append({"name": name, "isin": isin, "shares": shares, "price": latest_price, "value": value,
-                              "weight": weight})
+                              "expectedReturn": expected_return, "volatility": volatility, "weight": weight})
             total_weight += weight
 
     result = {
@@ -201,7 +206,26 @@ def get_portfolio_and_performance(ef, prices, optimizer_parameters):
     return result
 
 
-def add_plots_to_portfolio(portfolio, ax, fig):
+def plot_assets_in_portfolio_with_different_color(portfolio, ax, volatility, returns):
+    volatility_list = []
+    return_list = []
+
+    for etf in portfolio["portfolio"]:
+        etf_combined_name = get_combined_name_and_isin(etf["name"], etf["isin"])
+
+        volatility_list.append(volatility[etf_combined_name])
+        return_list.append(returns[etf_combined_name])
+
+    ax.scatter(
+        volatility_list,
+        return_list,
+        s=30,
+        color="g",
+        label="assets in portfolio",
+    )
+
+
+def add_plot_to_portfolio(portfolio, ax, fig):
     ax.scatter(portfolio["annualVolatility"], portfolio["expectedReturn"], marker="*", s=100, c="r", label="Optimized Portfolio")
     ax.set_title("Efficient Frontier")
     ax.legend()
@@ -249,7 +273,7 @@ def get_prices_data_frame_full_history(etf_list):
             nans = [float("nan")] * (max_len - len(prices))
             prices = nans + prices
 
-        identifier = etf.get_name() + " | " + etf.get_isin()
+        identifier = get_combined_name_and_isin(etf.get_name(), etf.get_isin())
         prices_by_date[identifier] = prices
 
     return pandas.DataFrame(prices_by_date)

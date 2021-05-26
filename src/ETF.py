@@ -36,6 +36,9 @@ class ETF:
     def get_distribution_policy(self):
         return self.data["distributionPolicy"]
 
+    def get_fund_currency(self):
+        return self.data["fundCurrency"]
+
     def get_rics(self):
         if "RICs" in self.data:
             return self.data["RICs"]
@@ -69,3 +72,13 @@ def get_etf_list_from_json(json_data):
 
     return etf_list
 
+
+def get_combined_name_and_isin(name, isin):
+    return name + " | " + isin
+
+
+def get_split_name_and_isin(name_and_isin):
+    name = name_and_isin.split(" | ")[0]
+    isin = name_and_isin.split(" | ")[1]
+
+    return name, isin

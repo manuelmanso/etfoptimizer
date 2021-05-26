@@ -286,6 +286,25 @@ class Search extends React.Component {
                                         ))}
                                 </Select>
                             </FormControl>
+                            <FormControl style={{ margin: "5px" }}>
+                                <InputLabel id="fundCurrency">Fund Currency</InputLabel>
+                                <Select
+                                    labelId="fundCurrency"
+                                    id="fundCurrency-select"
+                                    value={parameters.fundCurrencies && etfFilters.fundCurrency != null ? etfFilters.fundCurrency : ""}
+                                    style={{ minWidth: "130px" }}
+                                    onClick={(e) =>
+                                        this.handleChangeETFFilters(e.target.value === 0 ? null : e.target.value, "fundCurrency")
+                                    }
+                                >
+                                    {parameters.fundCurrencies &&
+                                        parameters.fundCurrencies.map((option, index) => (
+                                            <MenuItem key={option} value={option}>
+                                                {option}
+                                            </MenuItem>
+                                        ))}
+                                </Select>
+                            </FormControl>
                         </div>
                     </Paper>
                     <Typography variant="body1" component="h2" style={{ margin: "10px" }}>
