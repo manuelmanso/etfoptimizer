@@ -16,7 +16,7 @@ def get_etf_list():
     print("Getting ETFs from MongoDB")
     start = default_timer()
     db = get_mongo_db()
-    etfs = db.etfs.find()
+    etfs = db.etfs.find(allow_disk_use=True).sort("data.yearReturnPerRiskCUR", -1)
     etf_list = get_etf_list_from_json(etfs)
     end = default_timer()
     print("Time to get etfList from mongoDB " + str(end - start))

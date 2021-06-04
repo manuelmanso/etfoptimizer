@@ -139,6 +139,8 @@ class Portfolio extends React.Component {
                                         Portfolio
                                     </TableCell>
                                     <TableCell component="th" scope="row"></TableCell>
+                                    <TableCell component="th" scope="row"></TableCell>
+                                    <TableCell component="th" scope="row"></TableCell>
                                     <TableCell component="th" scope="row" style={{ fontWeight: "bold" }}>
                                         {(portfolio.totalWeight * 100).toFixed(2) + "%"}
                                     </TableCell>

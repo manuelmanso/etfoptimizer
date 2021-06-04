@@ -1,13 +1,18 @@
 Questions:
 Select multiple filters at once?
 Error when there's only one ETF matching filters
+Sorting ETFs by yearReturnPerRiskCUR
 
 TO DO:
-Fix portfolio table columns
-Order ETFs by sharpe ratio
 Prices don't seem to be correct: figure out what's going on (last price doesn't match the data) (probably leading to Nan values when allocating shares)
 Update pricing data
 Improve README
+
+ETF data:
+Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
+Setup way for pricing data to be updated by running a script (needs mongoDB location, eikon app key and justetfurl as inputs)
+Maybe need to scrape justETF to get more information(listings)
+Use etfDB in the future (or get the full list of ETFs from justETF)
 
 Back-testing TODO:
 Implement system to perform back-testing
@@ -15,12 +20,6 @@ Optimize portfolio starting on x date, reoptimizing every x days, based on last 
 Check final value
 Compare with expected results
 Plot results and compare with expected results
-
-ETF data:
-Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
-Setup way for pricing data to be updated by running a script (needs mongoDB location, eikon app key and justetfurl as inputs)
-Maybe need to scrape justETF to get more information(listings)
-Use etfDB in the future (or get the full list of ETFs from justETF)
 
 Deployment:
 Setup frontend server proxying for backend
