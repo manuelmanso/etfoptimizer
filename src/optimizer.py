@@ -35,7 +35,6 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     prices = get_prices_data_frame(etf_list, rolling_window_in_days)
 
     returns = expected_returns.mean_historical_return(prices)
-
     remove_ter_from_returns(etf_list, returns)
 
     cov = risk_models.sample_cov(prices)
@@ -259,7 +258,6 @@ def get_prices_data_frame_full_history(etf_list):
 
     max_len = get_max_len_historical_data(etf_list)
 
-    total = 0
     for etf in etf_list:
         prices = []
         for datePrice in etf.get_historical_data():
