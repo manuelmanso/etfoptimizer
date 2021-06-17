@@ -2,7 +2,7 @@ import flask
 from flask_cors import CORS
 import optimizer
 import os
-from mongoDB import get_etf_list
+from mongoDB import get_etf_list, PRODUCTION_DB_NAME
 import parameters
 
 OPTIMIZER_CONTAINER_PORT = int(os.environ['OPTIMIZER_CONTAINER_PORT'])
@@ -10,7 +10,7 @@ OPTIMIZER_CONTAINER_PORT = int(os.environ['OPTIMIZER_CONTAINER_PORT'])
 app = flask.Flask(__name__)
 CORS(app)
 
-full_etf_list = get_etf_list()
+full_etf_list = get_etf_list(PRODUCTION_DB_NAME)
 parameters = parameters.get_parameters(full_etf_list)
 
 

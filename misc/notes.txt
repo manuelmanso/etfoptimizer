@@ -2,17 +2,14 @@ Questions:
 Select multiple filters at once?
 Error when there's only one ETF matching filters
 Sorting ETFs by yearReturnPerRiskCUR
+Color ETFs in portfolio differently
+Removed shorting
+Eikon alternative: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html (yfinance or alpha vantage)
+Eikon isn't perfect: data fetching is slow, some ETFs have a lot less data than they should have, some ETFs are using data from other very similar ETFs
 
 TO DO:
-Prices don't seem to be correct: figure out what's going on (last price doesn't match the data) (probably leading to Nan values when allocating shares)
-Update pricing data
+Investigate ETFs with really high volatility and don't include in plot
 Improve README
-
-ETF data:
-Fix incomplete historicalData (some etfs have data that is missing a lot of days in between days with data, but this shouldn't happen because all those days actually have data)
-Setup way for pricing data to be updated by running a script (needs mongoDB location, eikon app key and justetfurl as inputs)
-Maybe need to scrape justETF to get more information(listings)
-Use etfDB in the future (or get the full list of ETFs from justETF)
 
 Back-testing TODO:
 Implement system to perform back-testing
@@ -22,6 +19,7 @@ Compare with expected results
 Plot results and compare with expected results
 
 Deployment:
+Move mongo to GCP mongo db
 Setup frontend server proxying for backend
 Flask production WSGI server for deployment
 Setup kubernetes using Google Kubernetes Engine
@@ -37,6 +35,7 @@ Check L2 regularization (check if it changes the number of ETFs in the portfolio
 Future:
 Check if ETF list size can be reduced in backend so it doesn't use as much memory (or maybe write etfData to file and read it from there)
 Add regime switching optimization
+Maybe need to scrape justETF to get more information(listings)
 Other filters: listings, region, sector, equity class
 
 

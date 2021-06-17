@@ -6,16 +6,18 @@ import os
 MONGO_DB_HOST = os.environ['MONGO_DB_HOST']
 MONGO_DB_PORT = int(os.environ['MONGO_DB_PORT'])
 
-
-def get_mongo_db():
-    client = MongoClient(host=MONGO_DB_HOST, port=MONGO_DB_PORT)
-    return client.etfOptimizer
+TEST_DB_NAME = "test"
+PRODUCTION_DB_NAME = "prod"
 
 
-def get_etf_list():
+def get_mongo_client():
+    return MongoClient(host=MONGO_DB_HOST, port=MONGO_DB_PORT)
+
+
+def get_etf_list(db_name):
     print("Getting ETFs from MongoDB")
     start = default_timer()
-    db = get_mongo_db()
+    db = get_mongo_client()[db_name]
     etfs = db.etfs.find(allow_disk_use=True).sort("data.yearReturnPerRiskCUR", -1)
     etf_list = get_etf_list_from_json(etfs)
     end = default_timer()
@@ -23,16 +25,21 @@ def get_etf_list():
     return etf_list
 
 
-def save_etf_list(etf_list):
+def save_etf_list(etf_list, db_name):
     json_data = []
 
     for etf in etf_list:
         json_data.append(etf.to_json())
 
-    db = get_mongo_db()
+    db = get_mongo_client()[db_name]
     db.etfs.insert_many(json_data)
 
 
-def update_etf_historical_data(etf):
-    db = get_mongo_db()
+def update_etf_historical_data(etf, db_name):
+    db = get_mongo_client()[db_name]
     db.etfs.update_one({'_id': etf.get_id()}, {'$set': {'historicalData': etf.get_historical_data()}})
+
+
+def clear_test_db():
+    client = get_mongo_client()
+    client.drop_database(TEST_DB_NAME)

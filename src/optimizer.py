@@ -16,14 +16,12 @@ RISK_FREE_RATE = 0.02
 MINIMUM_DAYS_WITH_DATA = 0
 ASSET_WEIGHT_CUTOFF = 0.01
 ASSET_WEIGHT_ROUNDING = 4
-SHORTING = False
 ROLLING_WINDOW_IN_DAYS = 0
 MAX_ETF_LIST_SIZE = 400
 
 
 def optimize(etf_list, optimizer_parameters, etf_filters):
 
-    shorting = optimizer_parameters.get("shorting", SHORTING)
     rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays")
     if rolling_window_in_days is None:
         rolling_window_in_days = ROLLING_WINDOW_IN_DAYS
@@ -40,8 +38,7 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     cov = risk_models.sample_cov(prices)
     volatility = pandas.Series(np.sqrt(np.diag(cov)), index=cov.index)
 
-    weight_bounds = (-1, 1) if shorting else (0, 1)
-    ef = EfficientFrontier(returns, cov, weight_bounds=weight_bounds, solver_options={"solver": "ECOS"}, verbose=True)
+    ef = EfficientFrontier(returns, cov, weight_bounds=(0, 1), solver_options={"solver": "ECOS"}, verbose=True)
 
     fig, ax = plt.subplots()
     n_points = 10
@@ -246,35 +243,28 @@ def remove_ter_from_returns(etf_list, returns):
 
 
 def get_prices_data_frame(etf_list, rolling_window_in_days):
-    prices = get_prices_data_frame_full_history(etf_list)
-    if rolling_window_in_days > 0:
-        prices = prices[-rolling_window_in_days:]
-
-    return prices
-
-
-def get_prices_data_frame_full_history(etf_list):
     prices_by_date = {}
 
-    max_len = get_max_len_historical_data(etf_list)
-
     for etf in etf_list:
-        prices = []
+
+        if len(etf.get_historical_data()) == 0:
+            continue
+
+        identifier = get_combined_name_and_isin(etf.get_name(), etf.get_isin())
+
+        dates = {}
         for datePrice in etf.get_historical_data():
             price = datePrice["close"]
             if price == 0:  # Fixes ETFs that have 0 as their first value and then get an infinite return
-                prices.append(float("nan"))
-            else:
-                prices.append(price)
+                price = float("nan")
 
-        if len(prices) < max_len:  # adds "NaNs" at the start of the list
-            nans = [float("nan")] * (max_len - len(prices))
-            prices = nans + prices
+            dates[datePrice["date"]] = price
 
-        identifier = get_combined_name_and_isin(etf.get_name(), etf.get_isin())
-        prices_by_date[identifier] = prices
+        prices_by_date[identifier] = dates
 
-    return pandas.DataFrame(prices_by_date)
+    df = pandas.DataFrame(prices_by_date)
+    df.sort_index(inplace=True)
+    return df[-rolling_window_in_days:]
 
 
 def get_max_len_historical_data(etf_list):

@@ -47,6 +47,12 @@ class ETF:
     def set_rics(self, rics):
         self.data["RICs"] = rics
 
+    def set_no_data_found(self):
+        self.data["noDataFound"] = True
+
+    def get_no_data_found(self):
+        return self.data.get("noDataFound", False)
+
     def set_historical_data(self, historical_data):
         self.historical_data = historical_data
 
