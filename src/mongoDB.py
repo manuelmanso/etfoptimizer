@@ -4,21 +4,20 @@ from timeit import default_timer
 import os
 
 MONGO_DB_HOST = os.environ['MONGO_DB_HOST']
-MONGO_DB_PORT = int(os.environ['MONGO_DB_PORT'])
 
 TEST_DB_NAME = "test"
 PRODUCTION_DB_NAME = "prod"
 
 
 def get_mongo_client():
-    return MongoClient(host=MONGO_DB_HOST, port=MONGO_DB_PORT)
+    return MongoClient(host=MONGO_DB_HOST)
 
 
 def get_etf_list(db_name):
     print("Getting ETFs from MongoDB")
     start = default_timer()
     db = get_mongo_client()[db_name]
-    etfs = db.etfs.find(allow_disk_use=True).sort("data.yearReturnPerRiskCUR", -1)
+    etfs = db.etfs.find(allow_disk_use=True).sort("data.yearVolatilityCUR", 1)
     etf_list = get_etf_list_from_json(etfs)
     end = default_timer()
     print("Time to get etfList from mongoDB " + str(end - start))

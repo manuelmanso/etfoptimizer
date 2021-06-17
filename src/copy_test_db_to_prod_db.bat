@@ -1,5 +1,5 @@
-mongodump --host %MONGO_DB_HOST%:%MONGO_DB_PORT% --db test
+mongodump --host %MONGO_DB_HOST% --db test
 
-mongo --host %MONGO_DB_HOST%:%MONGO_DB_PORT% prod --eval "db.dropDatabase()"
+mongo --host %MONGO_DB_HOST% prod --eval "db.dropDatabase()"
 
-mongorestore --host %MONGO_DB_HOST%:%MONGO_DB_PORT% --db prod dump/test
+mongorestore --host %MONGO_DB_HOST% --db prod dump/test

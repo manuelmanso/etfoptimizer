@@ -2,11 +2,8 @@ import flask
 from flask_cors import CORS
 from waitress import serve
 import optimizer
-import os
 from mongoDB import get_etf_list, PRODUCTION_DB_NAME
 import parameters
-
-OPTIMIZER_CONTAINER_PORT = int(os.environ['OPTIMIZER_CONTAINER_PORT'])
 
 app = flask.Flask(__name__)
 CORS(app)
@@ -15,7 +12,7 @@ full_etf_list = get_etf_list(PRODUCTION_DB_NAME)
 parameters = parameters.get_parameters(full_etf_list)
 
 
-@app.route('/optimize', methods=["POST"])
+@app.route('/api/optimize', methods=["POST"])
 def optimize():
     try:
         body = flask.request.json
@@ -26,7 +23,7 @@ def optimize():
         return {"error": str(e)}, 400
 
 
-@app.route('/etfsMatchingFilters', methods=["POST"])
+@app.route('/api/etfsMatchingFilters', methods=["POST"])
 def get_etfs_matching_filters():
     try:
         body = flask.request.json
@@ -37,7 +34,7 @@ def get_etfs_matching_filters():
         return {"error": str(e)}, 400
 
 
-@app.route('/parameters', methods=["GET"])
+@app.route('/api/parameters', methods=["GET"])
 def get_parameters():
     try:
         return parameters
@@ -59,4 +56,4 @@ def get_etf_list():
 
 
 if __name__ == '__main__':
-    serve(app, host="0.0.0.0", port=OPTIMIZER_CONTAINER_PORT)
+    serve(app, host="0.0.0.0")

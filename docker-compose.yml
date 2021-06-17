@@ -1,28 +1,26 @@
 version: "3"
 services:
-  optimizer:
-    image: manuelmanso/etfoptimizer:optimizer
-    ports:
-      - ${OPTIMIZER_HOST_PORT}:${OPTIMIZER_CONTAINER_PORT}
-    environment:
-      - EIKON_APP_KEY=${EIKON_APP_KEY}
-      - JUSTETF_URL=${JUSTETF_URL}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - MONGO_DB_PORT=${MONGO_DB_CONTAINER_PORT}
-      - OPTIMIZER_CONTAINER_PORT=${OPTIMIZER_CONTAINER_PORT}
-    depends_on:
-      - mongo
-
   frontend:
     image: manuelmanso/etfoptimizer:frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - ${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}
-    environment:
-      - REACT_APP_BACKEND_URL=http://${OPTIMIZER_HOST}:${OPTIMIZER_HOST_PORT}/
-
-  mongo:
-    image: mongo
-    ports:
-      - ${MONGO_DB_HOST_PORT}:${MONGO_DB_CONTAINER_PORT}
+      - 80:80
     volumes:
-      - ${MONGO_DB_DATA_LOCATION}:/data/db
+      - /home/ubuntu/ssl:/etc/nginx/certs
+    depends_on:
+      - optimizer
+
+  optimizer:
+    image: manuelmanso/etfoptimizer:optimizer
+    restart: always
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    expose:
+      - 8080
+    volumes:
+      - ./src:/usr/src/app
+    environment:
+      - MONGO_DB_HOST=${MONGO_DB_HOST}

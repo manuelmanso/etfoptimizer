@@ -19,8 +19,6 @@ import DialogContent from "@material-ui/core/DialogContent";
 import Portfolio from "./Portfolio";
 
 class Search extends React.Component {
-    BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-
     componentDidMount() {
         this.getParameters();
         this.getEtfsMatchingFilters();
@@ -347,7 +345,6 @@ class Search extends React.Component {
                 <Dialog onClose={this.handleCloseIsinListDialog} open={this.state.isinListDialogOpen}>
                     <DialogTitle onClose={this.handleCloseIsinListDialog}>ISIN List</DialogTitle>
                     <DialogContent>
-                        {/*<Typography gutterBottom>{this.state.etfFilters.isinList}</Typography>*/}
                         {etfFilters.isinList == null || etfFilters.isinList.length === 0 ? (
                             <Typography gutterBottom>You haven't uploaded a file with any ISINs.</Typography>
                         ) : (
@@ -423,7 +420,7 @@ class Search extends React.Component {
     };
 
     getParameters = () => {
-        fetch(this.BACKEND_URL + "parameters")
+        fetch("api/parameters")
             .then(async (response) => {
                 const data = await response.json();
                 // check for error response
@@ -442,7 +439,7 @@ class Search extends React.Component {
 
     getEtfsMatchingFilters = () => {
         const { etfFilters } = this.state;
-        fetch(this.BACKEND_URL + "etfsMatchingFilters", {
+        fetch("api/etfsMatchingFilters", {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
@@ -481,7 +478,7 @@ class Search extends React.Component {
 
         this.setState({ optimizedResponse: null, loading: true, error: null });
 
-        fetch(this.BACKEND_URL + "optimize", {
+        fetch("api/optimize", {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",

@@ -9,8 +9,8 @@ from timeit import default_timer as timer
 from concurrent.futures import ThreadPoolExecutor
 import math
 
-EIKON_APP_KEY = os.environ['EIKON_APP_KEY']
-JUSTETF_URL = os.environ['JUSTETF_URL']
+EIKON_APP_KEY = os.environ.get('EIKON_APP_KEY', "")
+JUSTETF_URL = os.environ.get('JUSTETF_URL', "")
 
 START_DATE = "2000-01-01"
 
