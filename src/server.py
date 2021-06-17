@@ -1,5 +1,6 @@
 import flask
 from flask_cors import CORS
+from waitress import serve
 import optimizer
 import os
 from mongoDB import get_etf_list, PRODUCTION_DB_NAME
@@ -58,4 +59,4 @@ def get_etf_list():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=OPTIMIZER_CONTAINER_PORT)
+    serve(app, host="0.0.0.0", port=OPTIMIZER_CONTAINER_PORT)

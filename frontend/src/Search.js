@@ -235,7 +235,7 @@ class Search extends React.Component {
                                     {parameters.domicileCountries &&
                                         parameters.domicileCountries.map((option, index) => (
                                             <MenuItem key={option} value={option}>
-                                                {option}
+                                                {option.replace("<br />", " ")}
                                             </MenuItem>
                                         ))}
                                 </Select>
@@ -258,7 +258,7 @@ class Search extends React.Component {
                                     {parameters.replicationMethods &&
                                         parameters.replicationMethods.map((option, index) => (
                                             <MenuItem key={option} value={option}>
-                                                {option}
+                                                {option.replace("<br />", " ")}
                                             </MenuItem>
                                         ))}
                                 </Select>
@@ -281,7 +281,7 @@ class Search extends React.Component {
                                     {parameters.distributionPolicies &&
                                         parameters.distributionPolicies.map((option, index) => (
                                             <MenuItem key={option} value={option}>
-                                                {option}
+                                                {option.replace("<br />", " ")}
                                             </MenuItem>
                                         ))}
                                 </Select>
@@ -300,7 +300,7 @@ class Search extends React.Component {
                                     {parameters.fundCurrencies &&
                                         parameters.fundCurrencies.map((option, index) => (
                                             <MenuItem key={option} value={option}>
-                                                {option}
+                                                {option.replace("<br />", " ")}
                                             </MenuItem>
                                         ))}
                                 </Select>

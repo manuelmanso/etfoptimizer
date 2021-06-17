@@ -6,9 +6,19 @@ Color ETFs in portfolio differently
 Removed shorting
 Eikon alternative: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html (yfinance or alpha vantage)
 Eikon isn't perfect: data fetching is slow, some ETFs have a lot less data than they should have, some ETFs are using data from other very similar ETFs, some data is completely wrong
+Negative return - Lyxor S&P 500 VIX Futures Enhanced Roll UCITS ETF - Acc
+
+Deployment:
+Setup frontend server proxying for backend
+Flask production WSGI server for deployment
+Setup kubernetes using Google Kubernetes Engine
+Move mongo to GCP mongo db
+Fix problems with deploying and simplify process. Automate deployment (how to configure .env dynammically)
 
 TO DO:
+Returns don't seem correct (probably using wrong data)
 Investigate asset with negative return
+Getting data from prod mongodb could take really long
 Improve README
 
 Back-testing TODO:
@@ -17,13 +27,6 @@ Optimize portfolio starting on x date, reoptimizing every x days, based on last 
 Check final value
 Compare with expected results
 Plot results and compare with expected results
-
-Deployment:
-Setup frontend server proxying for backend
-Flask production WSGI server for deployment
-Setup kubernetes using Google Kubernetes Engine
-Move mongo to GCP mongo db
-Fix problems with deploying and simplify process. Automate deployment (how to configure .env dynammically)
 
 PyPortfolioOpt optimizations:
 Why is the leftover value so large for large initial values?
