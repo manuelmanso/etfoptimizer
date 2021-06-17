@@ -6,6 +6,7 @@ from pypfopt.efficient_frontier import EfficientFrontier
 import base64
 import io
 import numpy as np
+import math
 from timeit import default_timer
 
 OPTIMIZERS = ["MaxSharpe", "MinimumVolatility", "EfficientRisk", "EfficientReturn"]
@@ -18,18 +19,16 @@ ASSET_WEIGHT_CUTOFF = 0.01
 ASSET_WEIGHT_ROUNDING = 4
 ROLLING_WINDOW_IN_DAYS = 0
 MAX_ETF_LIST_SIZE = 400
+N_EF_PLOTTING_POINTS = 10
 
 
 def optimize(etf_list, optimizer_parameters, etf_filters):
-
-    rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays")
-    if rolling_window_in_days is None:
-        rolling_window_in_days = ROLLING_WINDOW_IN_DAYS
 
     etf_list, etfs_matching_filters = filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters)
 
     start = default_timer()
 
+    rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays", ROLLING_WINDOW_IN_DAYS)
     prices = get_prices_data_frame(etf_list, rolling_window_in_days)
 
     returns = expected_returns.mean_historical_return(prices)
@@ -41,9 +40,9 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     ef = EfficientFrontier(returns, cov, weight_bounds=(0, 1), solver_options={"solver": "ECOS"}, verbose=True)
 
     fig, ax = plt.subplots()
-    n_points = 10
-    param_range = get_plotting_param_range(ef, n_points)
-    plotting.plot_efficient_frontier(ef, ax=ax, points=n_points, ef_param_range=param_range, show_assets=True)
+    n_ef_plotting_points = optimizer_parameters.get("nEFPlottingPoints", N_EF_PLOTTING_POINTS)
+    param_range = get_plotting_param_range(ef, n_ef_plotting_points)
+    plotting.plot_efficient_frontier(ef, ax=ax, points=n_ef_plotting_points, ef_param_range=param_range, show_assets=True)
 
     call_optimizer(ef, optimizer_parameters)
 
@@ -78,6 +77,9 @@ def filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters):
     if etf_list_size_after_filtering == 0:
         raise Exception("No ETFs are left after filtering. Can't perform portfolio optimization. " +
                         "Check if your filters are correct.")
+
+    if etf_list_size_after_filtering == 1:
+        raise Exception("Can't perform portfolio optimization on just one ETF.")
 
     if etf_list_size_after_filtering > max_etf_list_size:
         print("Too many ETFs, calculation will take too long. Using only the first {} ETFs".format(max_etf_list_size))
@@ -253,23 +255,54 @@ def get_prices_data_frame(etf_list, rolling_window_in_days):
         identifier = get_combined_name_and_isin(etf.get_name(), etf.get_isin())
 
         dates = {}
-        for datePrice in etf.get_historical_data():
-            price = datePrice["close"]
-            if price == 0:  # Fixes ETFs that have 0 as their first value and then get an infinite return
+        historical_data = etf.get_historical_data()
+        last_50 = []
+        for i in range(len(historical_data)):
+            date_price = historical_data[i]
+            price = date_price["close"]
+
+            # Fixes ETFs that have 0 as their first value and then get an infinite return
+            if price == 0:
                 price = float("nan")
 
-            dates[datePrice["date"]] = price
+            # Fixes ETFs that have 1 day with a completely wrong value
+            previous_price = historical_data[i-1]["close"] if i > 0 else float("nan")
+            next_price = historical_data[i+1]["close"] if i < len(historical_data) - 1 else float("nan")
+            if not math.isnan(previous_price) and previous_price != 0 and (0.2 > (price / previous_price) or 5 < (price / previous_price)):
+                price = float("nan")
+            elif not math.isnan(next_price) and next_price != 0 and (0.2 > (price / next_price) or 5 < (price / next_price)):
+                price = float("nan")
+            elif len(last_50) > 0:
+                last_50_avg = sum(last_50) / len(last_50)
+                if 0.2 > (price / last_50_avg) or 5 < (price / last_50_avg):
+                    price = float("nan")
+
+            if not math.isnan(price):
+                last_50.append(price)
+
+            if len(last_50) == 50:
+                last_50 = last_50[1:]
+
+            dates[date_price["date"]] = price
 
         prices_by_date[identifier] = dates
 
     df = pandas.DataFrame(prices_by_date)
     df.sort_index(inplace=True)
-    return df[-rolling_window_in_days:]
+    df = df[-rolling_window_in_days:]
 
+    # Only include ETFs that have at least two recorded prices in the given timeframe, otherwise there are errors
+    etfs_to_drop = []
+    for etf in df:
+        at_least_two_prices = 0
+        for price in df[etf][::-1]:
+            if not math.isnan(price):
+                at_least_two_prices += 1
 
-def get_max_len_historical_data(etf_list):
-    max_len = 0
-    for etf in etf_list:
-        if len(etf.get_historical_data()) > max_len:
-            max_len = len(etf.get_historical_data())
-    return max_len
+            if at_least_two_prices == 2:
+                break
+
+        if at_least_two_prices < 2:
+            etfs_to_drop.append(etf)
+
+    return df.drop(etfs_to_drop, 1)

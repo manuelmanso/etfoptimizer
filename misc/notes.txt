@@ -5,10 +5,10 @@ Sorting ETFs by yearReturnPerRiskCUR
 Color ETFs in portfolio differently
 Removed shorting
 Eikon alternative: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html (yfinance or alpha vantage)
-Eikon isn't perfect: data fetching is slow, some ETFs have a lot less data than they should have, some ETFs are using data from other very similar ETFs
+Eikon isn't perfect: data fetching is slow, some ETFs have a lot less data than they should have, some ETFs are using data from other very similar ETFs, some data is completely wrong
 
 TO DO:
-Investigate ETFs with really high volatility and don't include in plot
+Investigate asset with negative return
 Improve README
 
 Back-testing TODO:
@@ -19,11 +19,10 @@ Compare with expected results
 Plot results and compare with expected results
 
 Deployment:
-Move mongo to GCP mongo db
 Setup frontend server proxying for backend
 Flask production WSGI server for deployment
 Setup kubernetes using Google Kubernetes Engine
-Use GCP database
+Move mongo to GCP mongo db
 Fix problems with deploying and simplify process. Automate deployment (how to configure .env dynammically)
 
 PyPortfolioOpt optimizations:
@@ -33,6 +32,7 @@ Add constraints: maximum weight for single asset and maximum number of assets
 Check L2 regularization (check if it changes the number of ETFs in the portfolio)
 
 Future:
+Allow to upload isin list as csv
 Check if ETF list size can be reduced in backend so it doesn't use as much memory (or maybe write etfData to file and read it from there)
 Add regime switching optimization
 Maybe need to scrape justETF to get more information(listings)
