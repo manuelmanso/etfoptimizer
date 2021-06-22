@@ -1,22 +1,23 @@
-Questions:
-Select multiple filters at once?
-Error when there's only one ETF matching filters
-Sorting ETFs by yearReturnPerRiskCUR or by volatilityYearCUR?
+Done:
+Added more data, now 2295 ETFs
+Fix error when there's only one ETF matching filters
 Color ETFs in portfolio differently
 Removed shorting
+Improved results table
+
+Questions:
+Sorting ETFs by yearReturnPerRiskCUR or by volatilityYearCUR?
 Eikon alternative: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html (yfinance or alpha vantage)
 Eikon isn't perfect: data fetching is slow, some ETFs have a lot less data than they should have, some ETFs are using data from other very similar ETFs, some data is completely wrong
 Negative return - Lyxor S&P 500 VIX Futures Enhanced Roll UCITS ETF - Acc - what is going on with this EFT? Volatility hedging?
 
 Deployment:
 Setup kubernetes using Google Kubernetes Engine
-Move mongo to GCP mongo db
 Fix problems with deploying and simplify process. Automate deployment (how to configure .env dynammically)
 
 TO DO:
 Returns don't seem correct (probably using wrong data)
 Investigate asset with negative return
-Getting data from prod mongodb could take really long
 Improve README
 
 Back-testing TODO:
@@ -33,11 +34,11 @@ Add constraints: maximum weight for single asset and maximum number of assets
 Check L2 regularization (check if it changes the number of ETFs in the portfolio)
 
 Future:
+Select multiple filters at once
 Allow to upload isin list as csv
 Check if ETF list size can be reduced in backend so it doesn't use as much memory (or maybe write etfData to file and read it from there)
 Add regime switching optimization
-Maybe need to scrape justETF to get more information(listings)
-Other filters: listings, region, sector, equity class
+Add other filters: listings, region, sector, equity class (Maybe need to scrape justETF to get more information)
 
 
 Unsolved questions:
@@ -61,4 +62,3 @@ mongorestore --host %MONGO_DB_HOST% --db prod dump/test
 Docker:
 docker build -t manuelmanso/etfoptimizer:optimizer src/
 docker build -t manuelmanso/etfoptimizer:frontend frontend/.
-"C:\Users\manel\Desktop\TUM\SS 2021\IDP ETF\mongoData"
