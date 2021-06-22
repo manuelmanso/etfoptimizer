@@ -24,3 +24,15 @@ services:
       - ./src:/usr/src/app
     environment:
       - MONGO_DB_HOST=${MONGO_DB_HOST}
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo
+    ports:
+      - 2717:27017
+    volumes:
+      - etfData:/data/db
+
+volumes:
+  etfData: {}
