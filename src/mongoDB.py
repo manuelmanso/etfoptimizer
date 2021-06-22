@@ -3,14 +3,17 @@ from pymongo import MongoClient
 from timeit import default_timer
 import os
 
-MONGO_DB_HOST = os.environ['MONGO_DB_HOST']
+MONGO_DB_HOST = os.environ.get('MONGO_DB_HOST')
 
 TEST_DB_NAME = "test"
 PRODUCTION_DB_NAME = "prod"
 
 
 def get_mongo_client():
-    return MongoClient(host=MONGO_DB_HOST)
+    if MONGO_DB_HOST is not None:
+        return MongoClient(host=MONGO_DB_HOST)
+    else:
+        return MongoClient("mongodb://mongo-service")
 
 
 def get_etf_list(db_name):

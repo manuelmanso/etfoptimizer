@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: optimizer-deployment
+  labels:
+    app: optimizer
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: optimizer
+  template:
+    metadata:
+      labels:
+        app: optimizer
+    spec:
+      containers:
+        - name: optimizer
+          image: gcr.io/etfoptimizer/optimizer:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080

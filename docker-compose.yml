@@ -1,7 +1,7 @@
 version: "3"
 services:
   frontend:
-    image: manuelmanso/etfoptimizer:frontend
+    image: gcr.io/etfoptimizer/frontend:v1
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -10,10 +10,10 @@ services:
     volumes:
       - /home/ubuntu/ssl:/etc/nginx/certs
     depends_on:
-      - optimizer
+      - optimizer-service
 
-  optimizer:
-    image: manuelmanso/etfoptimizer:optimizer
+  optimizer-service:
+    image: gcr.io/etfoptimizer/optimizer:v1
     restart: always
     build:
       context: ./src
@@ -23,7 +23,7 @@ services:
     volumes:
       - ./src:/usr/src/app
     environment:
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - MONGO_DB_HOST=mongo
     depends_on:
       - mongo
 
