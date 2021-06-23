@@ -3,6 +3,7 @@ from flask_cors import CORS
 from waitress import serve
 import optimizer
 from mongoDB import get_etf_list, PRODUCTION_DB_NAME
+import backtrader
 import parameters
 
 app = flask.Flask(__name__)
@@ -19,6 +20,18 @@ def optimize():
         optimizer_parameters = body.get("optimizerParameters", {})
         etf_filters = body.get("etfFilters", {})
         return optimizer.optimize(full_etf_list, optimizer_parameters, etf_filters)
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+
+@app.route('/api/backtrade', methods=["POST"])
+def optimize():
+    try:
+        body = flask.request.json
+        optimizer_parameters = body.get("optimizerParameters", {})
+        etf_filters = body.get("etfFilters", {})
+        backtrade_parameters = body.get("backtradeParameters", {})
+        return backtrader.backtrade(full_etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
     except Exception as e:
         return {"error": str(e)}, 400
 
