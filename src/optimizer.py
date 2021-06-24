@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from ETF import get_split_name_and_isin, get_combined_name_and_isin
 from pypfopt import expected_returns, risk_models, plotting, discrete_allocation
 from pypfopt.efficient_frontier import EfficientFrontier
+from datetime import datetime
 import base64
 import io
 import numpy as np
@@ -29,7 +30,8 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     start = default_timer()
 
     rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays", ROLLING_WINDOW_IN_DAYS)
-    prices = get_prices_data_frame(etf_list, rolling_window_in_days)
+    final_date = optimizer_parameters.get("finalDate", None)
+    prices = get_prices_data_frame(etf_list, rolling_window_in_days, final_date)
 
     returns = expected_returns.mean_historical_return(prices)
     remove_ter_from_returns(etf_list, returns)
@@ -39,16 +41,23 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
 
     ef = EfficientFrontier(returns, cov, weight_bounds=(0, 1), solver_options={"solver": "ECOS"}, verbose=True)
 
-    fig, ax = plt.subplots()
     n_ef_plotting_points = optimizer_parameters.get("nEFPlottingPoints", N_EF_PLOTTING_POINTS)
-    param_range = get_plotting_param_range(ef, n_ef_plotting_points)
-    plotting.plot_efficient_frontier(ef, ax=ax, points=n_ef_plotting_points, ef_param_range=param_range, show_assets=True)
 
-    call_optimizer(ef, optimizer_parameters)
+    if n_ef_plotting_points > 0:
+        fig, ax = plt.subplots()
+        param_range = get_plotting_param_range(ef, n_ef_plotting_points)
+        plotting.plot_efficient_frontier(ef, ax=ax, points=n_ef_plotting_points, ef_param_range=param_range, show_assets=True)
 
-    portfolio = get_portfolio_and_performance(ef, prices, optimizer_parameters, returns, volatility)
-    plot_assets_in_portfolio_with_different_color(portfolio, ax, volatility, returns)
-    add_plot_to_portfolio(portfolio, ax, fig)
+        call_optimizer(ef, optimizer_parameters)
+
+        portfolio = get_portfolio_and_performance(ef, prices, optimizer_parameters, returns, volatility)
+
+        plot_assets_in_portfolio_with_different_color(portfolio, ax, volatility, returns)
+        add_plot_to_portfolio(portfolio, ax, fig)
+    else:
+        call_optimizer(ef, optimizer_parameters)
+
+        portfolio = get_portfolio_and_performance(ef, prices, optimizer_parameters, returns, volatility)
 
     end = default_timer()
     print("Time to find max sharpe {}".format(end - start))
@@ -244,7 +253,7 @@ def remove_ter_from_returns(etf_list, returns):
                 returns.loc[index] = row - etf.get_ter()
 
 
-def get_prices_data_frame(etf_list, rolling_window_in_days):
+def get_prices_data_frame(etf_list, rolling_window_in_days, final_date):
     prices_by_date = {}
 
     for etf in etf_list:
@@ -259,6 +268,12 @@ def get_prices_data_frame(etf_list, rolling_window_in_days):
         last_50 = []
         for i in range(len(historical_data)):
             date_price = historical_data[i]
+
+            date = date_price["date"]
+            date_obj = datetime.strptime(date, '%Y-%m-%d').date()
+            if final_date is not None and date_obj > final_date:
+                break
+
             price = date_price["close"]
 
             # Fixes ETFs that have 0 as their first value and then get an infinite return
@@ -283,7 +298,7 @@ def get_prices_data_frame(etf_list, rolling_window_in_days):
             if len(last_50) == 50:
                 last_50 = last_50[1:]
 
-            dates[date_price["date"]] = price
+            dates[date] = price
 
         prices_by_date[identifier] = dates
 

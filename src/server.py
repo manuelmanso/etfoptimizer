@@ -25,7 +25,7 @@ def optimize():
 
 
 @app.route('/api/backtrade', methods=["POST"])
-def optimize():
+def backtrade():
     try:
         body = flask.request.json
         optimizer_parameters = body.get("optimizerParameters", {})

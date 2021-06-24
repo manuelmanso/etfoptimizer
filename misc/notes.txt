@@ -13,12 +13,11 @@ Sorting ETFs by yearReturnPerRiskCUR or by volatilityYearCUR?
 Eikon alternative: https://pandas-datareader.readthedocs.io/en/latest/remote_data.html (yfinance or alpha vantage)
 Eikon isn't perfect: data fetching is slow, some ETFs have a lot less data than they should have, some ETFs are using data from other very similar ETFs, some data is completely wrong
 Negative return - Lyxor S&P 500 VIX Futures Enhanced Roll UCITS ETF - Acc - what is going on with this EFT? Volatility hedging?
+Documentation for IDP?
 
 TO DO:
 Check how to simplify Kubernetes deployment (apply deployments and services all together)
 Try to deploy kubernetes in another environment and see if it's simple
-Add parameter to set final date for dataframe
-Add parameter to turn off plotting
 Returns don't seem correct (probably using wrong data)
 Investigate asset with negative return
 Improve README
