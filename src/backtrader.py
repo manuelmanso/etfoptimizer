@@ -48,7 +48,7 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
     end = default_timer()
     print("Time to run backtrading {}".format(end - start))
 
-    return {"performance": performance, "finalValue": value, "finalPortfolio": result.get("portfolio", [])}
+    return {"performance": performance, "finalValue": value}
 
 
 def get_portfolio_value_at_date(etf_list, portfolio, date):
@@ -66,7 +66,7 @@ def get_portfolio_value_at_date(etf_list, portfolio, date):
     return total_value
 
 
-def calculate_performance(starting_date, end_date, initial_value, portfolio, value):
+def calculate_performance(starting_date, end_date, initial_value, result, value):
     return {}
 
 
