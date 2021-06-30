@@ -1,8 +1,4 @@
 TO DO:
-Fix error "Unexpected token at position" with 1000 ETF list size
-Check how to simplify Kubernetes deployment (apply deployments and services all together)
-Try to deploy kubernetes in another environment and see if it's simple
-Returns don't seem correct (probably using wrong data)
 Start working on presentation (similar structure to Report)
 Improve README
 
@@ -28,7 +24,7 @@ Add other filters: listings, region, sector, equity class (Maybe need to scrape 
 Unsolved questions:
 Where to deploy? LRZ has a service that we could maybe use
 Fix and understand "covariance matrix is non positive semidefinite" warning (Example: "IE00B99FL386", "LU2090062865", "IE00BFWFPY67", "IE00B7MXFZ59", "LU1291109616", "LU0659579063", "DE000A0D8Q23")
-
+Returns don't seem correct (probably using wrong data)
 
 
 Useful commands:
@@ -44,14 +40,19 @@ mongo --host %MONGO_DB_HOST% prod --eval "db.dropDatabase()"
 mongorestore --host %MONGO_DB_HOST% --db prod dump/test
 
 Docker:
-docker build -t gcr.io/etfoptimizer/optimizer:v1 src/.
-docker push gcr.io/etfoptimizer/optimizer:v1
-kubectl rollout restart deployment/optimizer-deployment
+docker build -t manuelmanso/etfoptimizer-optimizer:v1 src/.
+docker push manuelmanso/etfoptimizer-optimizer:v1
 
-docker build -t gcr.io/etfoptimizer/frontend:v1 frontend/.
-docker push gcr.io/etfoptimizer/frontend:v1
+docker build -t manuelmanso/etfoptimizer-frontend:v1 frontend/.
+docker push manuelmanso/etfoptimizer-frontend:v1
+
+Kubernetes:
+kubectl apply -f frontend-deployment-and-service.yml -f mongo-db-deployment-and-service.yml -f optimizer-deployment-and-service.yml
+kubectl rollout restart deployment/optimizer-deployment
 kubectl rollout restart deployment/frontend-deployment
 
+kubectl delete all --all
+kubectl delete -f frontend-deployment-and-service.yml -f optimizer-deployment-and-service.yml
 
 
 Report structure:

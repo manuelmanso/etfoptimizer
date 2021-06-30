@@ -16,7 +16,25 @@ spec:
     spec:
       containers:
         - name: optimizer
-          image: gcr.io/etfoptimizer/optimizer:v1
+          image: manuelmanso/etfoptimizer-optimizer:v1
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: optimizer-service
+  labels:
+    app: optimizer-service
+
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: optimizer
