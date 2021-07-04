@@ -39,7 +39,7 @@ def optimize(etf_list, optimizer_parameters, etf_filters):
     cov = risk_models.sample_cov(prices)
     volatility = pandas.Series(np.sqrt(np.diag(cov)), index=cov.index)
 
-    ef = EfficientFrontier(returns, cov, weight_bounds=(0, 1), solver_options={"solver": "ECOS"}, verbose=True)
+    ef = EfficientFrontier(returns, cov, weight_bounds=(0, 1), solver_options={"solver": "ECOS"}, verbose=False)
 
     n_ef_plotting_points = optimizer_parameters.get("nEFPlottingPoints", N_EF_PLOTTING_POINTS)
 

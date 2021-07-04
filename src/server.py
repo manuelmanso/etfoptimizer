@@ -41,7 +41,6 @@ def backtrade():
 @app.route('/api/etfsMatchingFilters', methods=["POST"])
 def get_etfs_matching_filters():
     try:
-        print("OLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA SDFDSAFSDF")
         body = flask.request.json
         etf_filters = body.get("etfFilters", {})
         filtered_etfs = optimizer.filter_etfs_using_filters(full_etf_list, etf_filters)
