@@ -21,6 +21,7 @@ def optimize():
         etf_filters = body.get("etfFilters", {})
         return optimizer.optimize(full_etf_list, optimizer_parameters, etf_filters)
     except Exception as e:
+        print("Exception: ", e)
         return {"error": str(e)}, 400
 
 
@@ -33,17 +34,20 @@ def backtrade():
         backtrade_parameters = body.get("backtradeParameters", {})
         return backtrader.backtrade(full_etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
     except Exception as e:
+        print("Exception: ", e)
         return {"error": str(e)}, 400
 
 
 @app.route('/api/etfsMatchingFilters', methods=["POST"])
 def get_etfs_matching_filters():
     try:
+        print("OLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA SDFDSAFSDF")
         body = flask.request.json
         etf_filters = body.get("etfFilters", {})
         filtered_etfs = optimizer.filter_etfs_using_filters(full_etf_list, etf_filters)
         return {"etfsMatchingFilters": len(filtered_etfs), "totalETFs": len(full_etf_list)}
     except Exception as e:
+        print("Exception: ", e)
         return {"error": str(e)}, 400
 
 
@@ -52,6 +56,7 @@ def get_parameters():
     try:
         return parameters
     except Exception as e:
+        print("Exception: ", e)
         return {"error": str(e)}, 400
 
 
@@ -65,6 +70,7 @@ def get_etf_list():
             etf_json_list.append(etf_as_json)
         return {"etfList": etf_json_list}
     except Exception as e:
+        print("Exception: ", e)
         return {"error": str(e)}, 400
 
 

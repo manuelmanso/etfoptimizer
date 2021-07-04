@@ -11,9 +11,9 @@ PRODUCTION_DB_NAME = "prod"
 
 def get_mongo_client():
     if MONGO_DB_HOST is not None:
-        return MongoClient(host=MONGO_DB_HOST)
+        return MongoClient(host=MONGO_DB_HOST, port=2717)
     else:
-        return MongoClient("mongodb://mongo-service")
+        return MongoClient("mongodb://mongo-service:2717")
 
 
 def get_etf_list(db_name):

@@ -1,4 +1,5 @@
 TO DO:
+Fix error when ETFlistsize > 1500
 Start working on presentation (similar structure to Report)
 Improve README
 
@@ -48,12 +49,10 @@ docker push manuelmanso/etfoptimizer-frontend:v1
 
 Kubernetes:
 kubectl apply -f frontend-deployment-and-service.yml -f mongo-db-deployment-and-service.yml -f optimizer-deployment-and-service.yml
-kubectl rollout restart deployment/optimizer-deployment
-kubectl rollout restart deployment/frontend-deployment
+kubectl rollout restart deployment/optimizer-deployment deployment/frontend-deployment
 
-kubectl delete all --all
 kubectl delete -f frontend-deployment-and-service.yml -f optimizer-deployment-and-service.yml
-
+kubectl delete all --all
 
 Report structure:
 

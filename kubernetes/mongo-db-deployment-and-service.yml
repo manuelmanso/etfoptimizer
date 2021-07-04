@@ -44,7 +44,7 @@ spec:
   type: LoadBalancer
   ports:
     - protocol: TCP
-      port: 27017
+      port: 2717
       targetPort: 27017
   selector:
     app: mongo-pod
