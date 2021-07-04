@@ -1,9 +1,10 @@
 import optimizer
 import ETF
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import pypfopt
 from timeit import default_timer
+import matplotlib.pyplot as plt
 
 INITIAL_VALUE = 100000
 STARTING_DATE = "2010-01-01"
@@ -18,10 +19,13 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
 
     optimizer_parameters["nEFPlottingPoints"] = 0  # No need to plot with backtrading
 
+    filtered_etf_list, _ = optimizer.filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters)
+
     start = default_timer()
 
     value = initial_value
-    date = datetime.strptime(starting_date, '%Y-%m-%d').date()
+    starting_date = datetime.strptime(starting_date, '%Y-%m-%d').date()
+    date = starting_date
     trading_history = []
     result = {}
 
@@ -31,24 +35,28 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
         optimizer_parameters["initialValue"] = value
         result = optimizer.optimize(etf_list, optimizer_parameters, etf_filters)
 
-        date += relativedelta(months=rebalance_period)
+        next_rebalance = date + relativedelta(months=rebalance_period)
 
-        if date > today:
-            date = today
+        if next_rebalance > today:
+            next_rebalance = today
 
-        filtered_etf_list, _ = optimizer.filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters)
-        value = get_portfolio_value_at_date(filtered_etf_list, result["portfolio"], date) + result["leftoverFunds"]
+        while date < next_rebalance:
+            date += relativedelta(months=1)
 
-        trading_history.append({"date": date, "result": result, "value": value})
+            if date > next_rebalance:
+                date = next_rebalance
 
-    performance = calculate_performance(starting_date, today, initial_value, result, value)
+            value = get_portfolio_value_at_date(filtered_etf_list, result["portfolio"], date) + result["leftoverFunds"]
+            trading_history.append({"date": date, "result": result, "value": value})
 
-    plot_trading_history(starting_date, today, initial_value, trading_history)
+    performance = calculate_performance(starting_date, today, initial_value, value, result)
+
+    plot_trading_history(starting_date, initial_value, trading_history, performance)
 
     end = default_timer()
     print("Time to run backtrading {}".format(end - start))
 
-    return {"performance": performance, "finalValue": value}
+    return {"performance": performance, "finalValue": value, "finalPortfolio": result}
 
 
 def get_portfolio_value_at_date(etf_list, portfolio, date):
@@ -66,9 +74,29 @@ def get_portfolio_value_at_date(etf_list, portfolio, date):
     return total_value
 
 
-def calculate_performance(starting_date, end_date, initial_value, result, value):
-    return {}
+def calculate_performance(starting_date, end_date, initial_value, end_value, result):
+    years = (end_date - starting_date).days / 365
+    annualized_return = ((end_value / initial_value) ** (1 / years) - 1) * 100
+
+    return {
+        "annualizedReturn": annualized_return
+    }
 
 
-def plot_trading_history(starting_date, end_date, initial_value, trading_history):
-    pass
+def plot_trading_history(starting_date, initial_value, trading_history, performance):
+    dates = [starting_date]
+    values = [initial_value]
+
+    for history in trading_history:
+        dates.append(history["date"])
+        values.append(history["value"])
+
+    plt.switch_backend('agg')
+    plt.plot(dates, values, "ro-")
+    plt.title("Backtrading history")
+    plt.xlabel('Date')
+    plt.ylabel('Portfolio Value')
+
+    plt.annotate('Annualized return: {0:.2f}%'.format(performance["annualizedReturn"]), xy=(0.05, 0.95), xycoords='axes fraction')
+
+    plt.savefig('backtrading.png')
