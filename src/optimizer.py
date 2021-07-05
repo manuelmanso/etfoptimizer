@@ -306,18 +306,18 @@ def get_prices_data_frame(etf_list, rolling_window_in_days, final_date):
     df.sort_index(inplace=True)
     df = df[-rolling_window_in_days:]
 
-    # Only include ETFs that have at least two recorded prices in the given timeframe, otherwise there are errors
+    # Only include ETFs that have at least three recorded prices in the given timeframe, otherwise there are errors
     etfs_to_drop = []
     for etf in df:
-        at_least_two_prices = 0
+        at_least_three_prices = 0
         for price in df[etf][::-1]:
             if not math.isnan(price):
-                at_least_two_prices += 1
+                at_least_three_prices += 1
 
-            if at_least_two_prices == 2:
+            if at_least_three_prices == 3:
                 break
 
-        if at_least_two_prices < 2:
+        if at_least_three_prices < 3:
             etfs_to_drop.append(etf)
 
     return df.drop(etfs_to_drop, 1)

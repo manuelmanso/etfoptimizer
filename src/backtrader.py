@@ -19,9 +19,10 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
 
     optimizer_parameters["nEFPlottingPoints"] = 0  # No need to plot with backtrading
 
-    filtered_etf_list, _ = optimizer.filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters)
-
     start = default_timer()
+
+    filtered_etf_list, _ = optimizer.filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters)
+    prices = optimizer.get_prices_data_frame(filtered_etf_list, 0, None)
 
     value = initial_value
     starting_date = datetime.strptime(starting_date, '%Y-%m-%d').date()
@@ -46,7 +47,7 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
             if date > next_rebalance:
                 date = next_rebalance
 
-            value = get_portfolio_value_at_date(filtered_etf_list, result["portfolio"], date) + result["leftoverFunds"]
+            value = get_portfolio_value_at_date(prices, date, result["portfolio"]) + result["leftoverFunds"]
             trading_history.append({"date": date, "result": result, "value": value})
 
     performance = calculate_performance(starting_date, today, initial_value, value, result)
@@ -59,11 +60,10 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
     return {"performance": performance, "finalValue": value, "finalPortfolio": result}
 
 
-def get_portfolio_value_at_date(etf_list, portfolio, date):
+def get_portfolio_value_at_date(prices, date, portfolio):
+    prices_until_latest_date = prices.loc[:str(date)]
 
-    prices = optimizer.get_prices_data_frame(etf_list, 0, date)  # Only do this for applicable ETFs
-
-    latest_prices = pypfopt.discrete_allocation.get_latest_prices(prices)
+    latest_prices = pypfopt.discrete_allocation.get_latest_prices(prices_until_latest_date)
 
     total_value = 0
     for etf in portfolio:
