@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from ETF import get_split_name_and_isin, get_combined_name_and_isin
 from pypfopt import expected_returns, risk_models, plotting, discrete_allocation
 from pypfopt.efficient_frontier import EfficientFrontier
-from datetime import datetime
 import base64
 import io
 import numpy as np
@@ -23,15 +22,18 @@ MAX_ETF_LIST_SIZE = 400
 N_EF_PLOTTING_POINTS = 10
 
 
-def optimize(etf_list, optimizer_parameters, etf_filters):
-
-    etf_list, etfs_matching_filters = filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters)
+def optimize(etf_list, prices_df, optimizer_parameters, etf_filters):
 
     start = default_timer()
 
+    etf_list = filter_etfs_using_filters(etf_list, etf_filters)
+    etfs_matching_filters = len(etf_list)
+
     rolling_window_in_days = optimizer_parameters.get("rollingWindowInDays", ROLLING_WINDOW_IN_DAYS)
     final_date = optimizer_parameters.get("finalDate", None)
-    prices = get_prices_data_frame(etf_list, rolling_window_in_days, final_date)
+    prices = get_prices_data_frame_with_parameters(etf_list, prices_df, rolling_window_in_days, final_date)
+
+    prices, etf_size_list = size_check_prices_df(prices, optimizer_parameters)
 
     returns = expected_returns.mean_historical_return(prices)
     remove_ter_from_returns(etf_list, returns)
@@ -77,24 +79,21 @@ def get_plotting_param_range(ef, points):
     return param_range
 
 
-def filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters):
-    max_etf_list_size = optimizer_parameters.get("maxETFListSize", MAX_ETF_LIST_SIZE)
-
-    etf_list = filter_etfs_using_filters(etf_list, etf_filters)
-    etf_list_size_after_filtering = len(etf_list)
+def size_check_prices_df(prices, optimizer_parameters):
+    etf_list_size_after_filtering = len(prices.index)
 
     if etf_list_size_after_filtering == 0:
         raise Exception("No ETFs are left after filtering. Can't perform portfolio optimization. " +
                         "Check if your filters are correct.")
-
     if etf_list_size_after_filtering == 1:
         raise Exception("Can't perform portfolio optimization on just one ETF.")
 
+    max_etf_list_size = optimizer_parameters.get("maxETFListSize", MAX_ETF_LIST_SIZE)
     if etf_list_size_after_filtering > max_etf_list_size:
         print("Too many ETFs, calculation will take too long. Using only the first {} ETFs".format(max_etf_list_size))
-        etf_list = etf_list[:max_etf_list_size]
+        prices = prices.iloc[:, :max_etf_list_size]
 
-    return etf_list, etf_list_size_after_filtering
+    return prices, etf_list_size_after_filtering
 
 
 def filter_etfs_using_filters(etf_list, etf_filters):
@@ -253,7 +252,10 @@ def remove_ter_from_returns(etf_list, returns):
                 returns.loc[index] = row - etf.get_ter()
 
 
-def get_prices_data_frame(etf_list, rolling_window_in_days, final_date):
+def get_complete_prices_data_frame(etf_list):
+
+    start = default_timer()
+
     prices_by_date = {}
 
     for etf in etf_list:
@@ -270,10 +272,6 @@ def get_prices_data_frame(etf_list, rolling_window_in_days, final_date):
             date_price = historical_data[i]
 
             date = date_price["date"]
-            date_obj = datetime.strptime(date, '%Y-%m-%d').date()
-            if final_date is not None and date_obj > final_date:
-                break
-
             price = date_price["close"]
 
             # Fixes ETFs that have 0 as their first value and then get an infinite return
@@ -304,13 +302,30 @@ def get_prices_data_frame(etf_list, rolling_window_in_days, final_date):
 
     df = pandas.DataFrame(prices_by_date)
     df.sort_index(inplace=True)
-    df = df[-rolling_window_in_days:]
+
+    end = default_timer()
+    print("Time to build prices dataframe {}".format(end - start))
+
+    return df
+
+
+def get_prices_data_frame_with_parameters(etf_list, prices_df, rolling_window_in_days, final_date):
+    identifiers = []
+    for etf in etf_list:
+        identifiers.append(get_combined_name_and_isin(etf.get_name(), etf.get_isin()))
+
+    prices_df = prices_df[identifiers]
+
+    if final_date is not None:
+        prices_df = prices_df.loc[:str(final_date)]
+
+    prices_df = prices_df[-rolling_window_in_days:]
 
     # Only include ETFs that have at least three recorded prices in the given timeframe, otherwise there are errors
     etfs_to_drop = []
-    for etf in df:
+    for etf in prices_df:
         at_least_three_prices = 0
-        for price in df[etf][::-1]:
+        for price in prices_df[etf][::-1]:
             if not math.isnan(price):
                 at_least_three_prices += 1
 
@@ -320,4 +335,6 @@ def get_prices_data_frame(etf_list, rolling_window_in_days, final_date):
         if at_least_three_prices < 3:
             etfs_to_drop.append(etf)
 
-    return df.drop(etfs_to_drop, 1)
+    prices_df = prices_df.drop(etfs_to_drop, 1)
+
+    return prices_df

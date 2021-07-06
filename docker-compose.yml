@@ -1,7 +1,7 @@
 version: "3"
 services:
   frontend:
-    image: gcr.io/etfoptimizer/frontend:v1
+    image: manuelmanso/etfoptimizer-frontend:v1
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -13,7 +13,7 @@ services:
       - optimizer-service
 
   optimizer-service:
-    image: gcr.io/etfoptimizer/optimizer:v1
+    image: manuelmanso/etfoptimizer-optimizer:v1
     restart: always
     build:
       context: ./src
@@ -24,6 +24,7 @@ services:
       - ./src:/usr/src/app
     environment:
       - MONGO_DB_HOST=mongo
+      - MONGO_DB_PORT=27017
     depends_on:
       - mongo
 

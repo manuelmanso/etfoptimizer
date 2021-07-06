@@ -4,6 +4,7 @@ from timeit import default_timer
 import os
 
 MONGO_DB_HOST = os.environ.get('MONGO_DB_HOST')
+MONGO_DB_PORT = int(os.environ.get('MONGO_DB_PORT', 2717))
 
 TEST_DB_NAME = "test"
 PRODUCTION_DB_NAME = "prod"
@@ -11,7 +12,7 @@ PRODUCTION_DB_NAME = "prod"
 
 def get_mongo_client():
     if MONGO_DB_HOST is not None:
-        return MongoClient(host=MONGO_DB_HOST, port=2717)
+        return MongoClient(host=MONGO_DB_HOST, port=MONGO_DB_PORT)
     else:
         return MongoClient("mongodb://mongo-service:2717")
 
@@ -25,6 +26,17 @@ def get_etf_list(db_name):
     end = default_timer()
     print("Time to get etfList from mongoDB " + str(end - start))
     return etf_list
+
+
+def get_etf_list_with_historical_data(db_name):
+    etf_list = get_etf_list(db_name)
+    etf_list_with_data = []
+
+    for etf in etf_list:
+        if len(etf.get_historical_data()) > 0:
+            etf_list_with_data.append(etf)
+
+    return etf_list_with_data
 
 
 def save_etf_list(etf_list, db_name):

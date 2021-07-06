@@ -1,6 +1,6 @@
 import optimizer
 import ETF
-from datetime import datetime, timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import pypfopt
 from timeit import default_timer
@@ -11,7 +11,7 @@ STARTING_DATE = "2010-01-01"
 REBALANCE_PERIOD_IN_MONTHS = 12
 
 
-def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters):
+def backtrade(etf_list, prices_df, optimizer_parameters, etf_filters, backtrade_parameters):
 
     initial_value = backtrade_parameters.get("initialValue", INITIAL_VALUE)
     starting_date = backtrade_parameters.get("startingDate", STARTING_DATE)
@@ -20,9 +20,6 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
     optimizer_parameters["nEFPlottingPoints"] = 0  # No need to plot with backtrading
 
     start = default_timer()
-
-    filtered_etf_list, _ = optimizer.filter_etfs_with_size_checks(etf_list, optimizer_parameters, etf_filters)
-    prices = optimizer.get_prices_data_frame(filtered_etf_list, 0, None)
 
     value = initial_value
     starting_date = datetime.strptime(starting_date, '%Y-%m-%d').date()
@@ -34,7 +31,7 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
     while date < today:
         optimizer_parameters["finalDate"] = date
         optimizer_parameters["initialValue"] = value
-        result = optimizer.optimize(etf_list, optimizer_parameters, etf_filters)
+        result = optimizer.optimize(etf_list, prices_df, optimizer_parameters, etf_filters)
 
         next_rebalance = date + relativedelta(months=rebalance_period)
 
@@ -42,12 +39,12 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
             next_rebalance = today
 
         while date < next_rebalance:
-            date += relativedelta(months=1)
+            date += relativedelta(days=7)
 
             if date > next_rebalance:
                 date = next_rebalance
 
-            value = get_portfolio_value_at_date(prices, date, result["portfolio"]) + result["leftoverFunds"]
+            value = get_portfolio_value_at_date(prices_df, date, result["portfolio"]) + result["leftoverFunds"]
             trading_history.append({"date": date, "result": result, "value": value})
 
     performance = calculate_performance(starting_date, today, initial_value, value, result)
@@ -60,10 +57,10 @@ def backtrade(etf_list, optimizer_parameters, etf_filters, backtrade_parameters)
     return {"performance": performance, "finalValue": value, "finalPortfolio": result}
 
 
-def get_portfolio_value_at_date(prices, date, portfolio):
-    prices_until_latest_date = prices.loc[:str(date)]
+def get_portfolio_value_at_date(prices_df, date, portfolio):
+    prices_until_date = prices_df.loc[:str(date)]
 
-    latest_prices = pypfopt.discrete_allocation.get_latest_prices(prices_until_latest_date)
+    latest_prices = pypfopt.discrete_allocation.get_latest_prices(prices_until_date)
 
     total_value = 0
     for etf in portfolio:
@@ -92,7 +89,7 @@ def plot_trading_history(starting_date, initial_value, trading_history, performa
         values.append(history["value"])
 
     plt.switch_backend('agg')
-    plt.plot(dates, values, "ro-")
+    plt.plot(dates, values, "-")
     plt.title("Backtrading history")
     plt.xlabel('Date')
     plt.ylabel('Portfolio Value')

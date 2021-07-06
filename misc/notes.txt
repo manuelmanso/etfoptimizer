@@ -3,7 +3,8 @@ Fix error when ETFlistsize > 1500
 Improve README
 
 Back-testing TODO:
-Calculate portolio volatility
+Fix backtrader getting stuck
+Calculate portolio volatility and maxsharpe
 Compare with expected results (using Expected Return of 10% for example)
 Investigate the effect of changing: n_etfs, rebalance_period, minimum_days_with_data, rolling_window, optimizer
 
