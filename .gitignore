@@ -135,6 +135,7 @@ dmypy.json
 src/config.py
 misc/etfData.json
 misc/results.txt
+misc/backtrading.png
 plots/
 
 *dump
