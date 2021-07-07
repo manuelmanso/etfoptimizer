@@ -116,5 +116,7 @@ def plot_trading_history(starting_date, initial_value, trading_history, performa
     plt.ylabel('Portfolio Value')
 
     plt.annotate('Annualized return: {0:.2f}%'.format(performance["annualizedReturn"]), xy=(0.05, 0.95), xycoords='axes fraction')
+    plt.annotate('Volatility: {0:.2f}%'.format(performance["volatility"]), xy=(0.05, 0.90), xycoords='axes fraction')
+    plt.annotate('Sharpe ratio: {0:.2f}'.format(performance["sharpeRatio"]), xy=(0.05, 0.85), xycoords='axes fraction')
 
     plt.savefig('backtrading.png')
