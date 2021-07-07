@@ -176,7 +176,7 @@ def get_portfolio_and_performance(ef, prices, optimizer_parameters, returns, var
 
     latest_prices = discrete_allocation.get_latest_prices(prices)
     allocation = discrete_allocation.DiscreteAllocation(sharpe_pwt, latest_prices, initial_value)
-    alloc, leftover_funds = allocation.lp_portfolio()
+    alloc, leftover_funds = allocation.greedy_portfolio()
 
     portfolio = []
     total_weight = 0

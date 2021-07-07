@@ -1,6 +1,5 @@
 TO DO:
 Fix error when ETFlistsize > 1500
-Fix backtrader getting stuck
 Improve README
 
 PyPortfolioOpt optimizations:
