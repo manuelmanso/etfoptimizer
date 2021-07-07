@@ -1,5 +1,7 @@
 import optimizer
 import ETF
+import pandas
+import numpy as np
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import pypfopt
@@ -24,8 +26,7 @@ def backtrade(etf_list, prices_df, optimizer_parameters, etf_filters, backtrade_
     value = initial_value
     starting_date = datetime.strptime(starting_date, '%Y-%m-%d').date()
     date = starting_date
-    trading_history = []
-    result = {}
+    trading_history = [{"date": date, "result": None, "value": value}]
 
     today = datetime.today().date()
     while date < today:
@@ -47,14 +48,15 @@ def backtrade(etf_list, prices_df, optimizer_parameters, etf_filters, backtrade_
             value = get_portfolio_value_at_date(prices_df, date, result["portfolio"]) + result["leftoverFunds"]
             trading_history.append({"date": date, "result": result, "value": value})
 
-    performance = calculate_performance(starting_date, today, initial_value, value, result)
+    risk_free_rate = optimizer_parameters.get("riskFreeRate", optimizer.RISK_FREE_RATE)
+    performance = calculate_performance(trading_history, risk_free_rate)
 
     plot_trading_history(starting_date, initial_value, trading_history, performance)
 
     end = default_timer()
     print("Time to run backtrading {}".format(end - start))
 
-    return {"performance": performance, "finalValue": value, "finalPortfolio": result}
+    return {"performance": performance, "finalValue": value, "tradingHistory": trading_history}
 
 
 def get_portfolio_value_at_date(prices_df, date, portfolio):
@@ -71,12 +73,31 @@ def get_portfolio_value_at_date(prices_df, date, portfolio):
     return total_value
 
 
-def calculate_performance(starting_date, end_date, initial_value, end_value, result):
+def calculate_performance(trading_history, risk_free_rate):
+    starting_date = trading_history[0]["date"]
+    end_date = trading_history[-1]["date"]
+    initial_value = trading_history[0]["value"]
+    end_value = trading_history[-1]["value"]
+
     years = (end_date - starting_date).days / 365
     annualized_return = ((end_value / initial_value) ** (1 / years) - 1) * 100
 
+    value_history = []
+    for history in trading_history:
+        value_history.append(history["value"])
+
+    values_df = pandas.DataFrame(value_history)
+
+    cov = pypfopt.risk_models.sample_cov(values_df, frequency=36)
+    vol_series = pandas.Series(np.sqrt(np.diag(cov)), index=cov.index)
+    volatility = vol_series[0] * 100
+
+    sharpe_ratio = (annualized_return - risk_free_rate*100) / volatility
+
     return {
-        "annualizedReturn": annualized_return
+        "annualizedReturn": annualized_return,
+        "volatility": volatility,
+        "sharpeRatio": sharpe_ratio
     }
 
 
